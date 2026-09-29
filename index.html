@@ -12,10 +12,20 @@ body{margin:0;font:13px/1.4 system-ui,-apple-system,Segoe UI,sans-serif;backgrou
 
 #app{flex:1;min-height:0;display:grid;grid-template-columns:300px 1fr;gap:14px;padding:14px;overflow:hidden}
 
-#side{overflow:auto;padding:14px;background:var(--panel);border:1px solid var(--line);border-radius:12px}
-#side>b{display:block;font-size:12px;color:var(--sub);font-weight:600;text-transform:uppercase;letter-spacing:.4px;margin-bottom:6px}
-#side label{display:grid;grid-template-columns:1fr 88px;gap:6px;margin:5px 0;align-items:center}
-#side label span{color:#c7cbdb}
+#side{overflow:hidden;background:var(--panel);border:1px solid var(--line);border-radius:12px;display:flex;flex-direction:column}
+#sideBody{overflow:auto;padding:14px;flex:1;min-height:0}
+#sideFoot{flex:0 0 auto;padding:12px 14px;border-top:1px solid var(--line);background:var(--panel2);display:flex;gap:8px}
+#sideFoot button{flex:1;margin:0}
+#sideBody>b{display:block;font-size:12px;color:var(--sub);font-weight:600;text-transform:uppercase;letter-spacing:.4px;margin-bottom:6px}
+#sideBody label{display:grid;grid-template-columns:1fr 88px;gap:6px;margin:5px 0;align-items:center}
+#sideBody label span{color:#c7cbdb;cursor:help;border-bottom:1px dotted #444;width:fit-content}
+details{border-top:1px solid var(--line);margin-top:10px;padding-top:2px}
+details:first-of-type{border-top:0;margin-top:4px}
+summary{cursor:pointer;list-style:none;display:flex;align-items:center;padding:8px 2px;color:var(--accent2);font-size:11.5px;text-transform:uppercase;letter-spacing:.6px;font-weight:700;user-select:none}
+summary::-webkit-details-marker{display:none}
+summary::before{content:'▸';display:inline-block;margin-right:6px;transition:transform .15s;color:var(--sub);font-size:10px}
+details[open] summary::before{transform:rotate(90deg)}
+.sec{padding:2px 2px 8px}
 input,button,select{font:inherit}
 input[type=number],input[type=text],select{width:88px;background:var(--panel2);color:var(--txt);border:1px solid var(--line);border-radius:6px;padding:5px 7px;outline:none}
 input[type=number]:focus,select:focus{border-color:var(--accent)}
@@ -23,9 +33,6 @@ input[type=file]{width:100%;color:var(--sub);font-size:12px}
 input[type=checkbox]{width:17px;height:17px;accent-color:var(--accent)}
 button{background:var(--accent);color:#fff;border:0;padding:8px 12px;margin:4px 4px 4px 0;border-radius:7px;cursor:pointer;font-weight:600;transition:filter .15s}
 button:hover{filter:brightness(1.12)}button.o{background:var(--panel2);color:var(--sub);border:1px solid var(--line)}
-h4{margin:16px 0 6px;padding-top:10px;border-top:1px solid var(--line);color:var(--accent2);font-size:11.5px;text-transform:uppercase;letter-spacing:.6px;font-weight:700}
-h4:first-of-type{border-top:0;padding-top:0;margin-top:4px}
-#side>br+button{width:calc(50% - 6px)}
 
 #main{display:flex;flex-direction:column;min-width:0;background:var(--panel);border:1px solid var(--line);border-radius:12px;overflow:hidden}
 #viewhead{flex:0 0 auto;display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid var(--line);background:var(--panel2)}
@@ -63,7 +70,7 @@ h4:first-of-type{border-top:0;padding-top:0;margin-top:4px}
  <span class=tag>4-side laser-cut shadow art panel designer</span>
 </div>
 <div id=app>
-<div id=side></div>
+<div id=side><div id=sideBody></div><div id=sideFoot></div></div>
 <div id=main>
  <div id=viewhead><b>Live 3D Preview</b><small>drag&nbsp;=&nbsp;rotate&nbsp;&middot;&nbsp;wheel&nbsp;=&nbsp;zoom</small>
   <div id=tabs><button id=t0>3D View</button><button id=t1 class=o>Shadow Test</button></div>
@@ -80,13 +87,24 @@ const FD=[['#','Shadow (on ground)'],['sw','Width',500],['sl','Length',500],['ro
 ['#','Joinery'],['tabw','Base tab width mm',10],
 ['#','Cleanup & labels'],['desp','Despeckle under __ mm²',0],['bw','Bridge width mm',1.5],['lbl_size','Label size mm',6],
 ['#','Export'],['res','Resolution mm',.2],['kerf','Laser kerf mm',.15],['sheet','Sheet width mm',600],['gap','Piece gap mm',5]];
-$('side').innerHTML='<b>Shadow image (SVG / PNG / JPG)</b><input type=file id=f accept="image/*,.svg">'+
-'<label><span>Material thickness</span><select id=thk><option value=3>3 mm</option><option value=5>5 mm</option><option value=8>8 mm</option></select></label>'+
+const HINTS={sw:'Width of the shadow silhouette on the ground',sl:'Length of the shadow silhouette on the ground',rot:'Rotate the shadow image',mx:'Shift the shadow left/right',my:'Shift the shadow forward/back',thr:'Image brightness cutoff between solid and open areas',
+H:'Height of the light source above the base',W:'Outer width of the box',L:'Outer length (depth) of the box',wx:'Shift the wall pattern left/right',wy:'Shift the wall pattern forward/back',t:'Thickness of the acrylic/plywood sheet for the walls',bt:'Thickness of the sheet for the base plate',rail:'Solid opaque zone at the bottom of every wall - fits a battery + switch',
+cd:'Hole in the base for a light/LED to shine through',md:'Hole(s) for magnets, e.g. a removable lid',mdist:'Distance of each magnet hole from center',btn:'Hole in the Back panel for a physical power button',
+tabw:'Width of the tabs that plug the walls through the base',
+desp:'Remove floating islands smaller than this area - cleans up noise',bw:'Width of the connector struts added to hold floating islands in place',lbl_size:'Size of the engraved panel name / edge labels',
+res:'Grid resolution used to trace the cut paths - smaller is more precise but slower',kerf:'Width the laser beam removes - compensated automatically on export',sheet:'Width of your laser bed / material sheet',gap:'Spacing between pieces when packing the sheet'};
+const OPEN={'Shadow (on ground)':1,'Wall: 4 flat panels':1};
+$('sideBody').innerHTML='<b>1. Shadow image</b><input type=file id=f accept="image/*,.svg">'+
+'<label><span title="Standard sheet thicknesses">Material thickness</span><select id=thk><option value=3>3 mm</option><option value=5>5 mm</option><option value=8>8 mm</option></select></label>'+
 '<label><span>Invert (light shape on dark)</span><input type=checkbox id=inv></label>'+
-'<label><span>Interlocking joinery</span><input type=checkbox id=join checked></label>'+
-'<label><span>Panel labels (engrave)</span><input type=checkbox id=lbl checked></label>'+
-'<label><span>Highlight bridges in 3D</span><input type=checkbox id=hlb checked></label>'+
-FD.map(d=>d[0]=='#'?`<h4>${d[1]}</h4>`:`<label><span>${d[1]}</span><input type=number step=any id=${d[0]} value=${d[2]}></label>`).join('')+'<br><button id=bs>Download SVG</button><button id=bd>Download DXF</button>';
+'<label><span title="Adds interlocking corner fingers + base tabs so the box self-aligns while gluing">Interlocking joinery</span><input type=checkbox id=join checked></label>'+
+'<label><span title="Engraves FRONT/BACK/LEFT/RIGHT names on the pieces">Panel labels (engrave)</span><input type=checkbox id=lbl checked></label>'+
+'<label><span title="Shows connector struts in green in the 3D view">Highlight bridges in 3D</span><input type=checkbox id=hlb checked></label>'+
+(()=>{let html='',open=false;FD.forEach(d=>{
+ if(d[0]=='#'){if(open)html+='</div></details>';html+=`<details${OPEN[d[1]]?' open':''}><summary>${d[1]}</summary><div class=sec>`;open=true}
+ else html+=`<label><span title="${HINTS[d[0]]||''}">${d[1]}</span><input type=number step=any id=${d[0]} value=${d[2]} title="${HINTS[d[0]]||''}"></label>`});
+ if(open)html+='</div></details>';return html})();
+$('sideFoot').innerHTML='<button id=bs>Download SVG</button><button id=bd>Download DXF</button>';
 let P={},S=1,N=1024,G=new Float32Array(N*N),img=null,PN=[],GL=[],shDirty=1,tab=0,tm,cam={y:-.7,p:.5,z:1.5},dr=null;
 const cv=$('cv'),shc=document.createElement('canvas');
 function rd(){FD.forEach(d=>{if(d[0]!='#'){const v=parseFloat($(d[0]).value);P[d[0]]=isNaN(v)?d[2]:v}});
