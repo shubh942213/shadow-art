@@ -27,7 +27,8 @@ exports.handler = async (event) => {
   if (!phone || phone.length < 7) return resp(400, { ok: false, msg: 'Enter a valid phone number' });
   if (!VALID_KEYS.includes(key)) return resp(403, { ok: false, msg: 'Unknown security key' });
 
-  const { getStore } = await import('@netlify/blobs');
+  const { getStore, connectLambda } = await import('@netlify/blobs');
+  connectLambda(event); // required in Lambda-compatible handlers - Blobs isn't auto-configured otherwise
   const store = getStore('licenses');
   const rec = await store.get(key, { type: 'json' });
 
