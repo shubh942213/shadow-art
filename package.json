@@ -1,0 +1,7 @@
+{
+  "name": "shadow-art-panel-maker",
+  "private": true,
+  "dependencies": {
+    "@netlify/blobs": "^8.1.0"
+  }
+}

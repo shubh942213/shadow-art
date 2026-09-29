@@ -1,0 +1,328 @@
+<!doctype html><html lang=en><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><title>Radilux Shadow Art Generator v1.1</title>
+<style>
+:root{--bg:#101116;--panel:#181a21;--panel2:#1e212a;--line:#2a2d38;--txt:#e6e8ee;--sub:#8b91a5;--accent:#7c6cff;--accent2:#3fb6ff;--good:#3ddc84}
+*{box-sizing:border-box}html,body{height:100%}
+body{margin:0;font:13px/1.4 system-ui,-apple-system,Segoe UI,sans-serif;background:var(--bg);color:var(--txt);display:flex;flex-direction:column}
+::-webkit-scrollbar{width:9px;height:9px}::-webkit-scrollbar-thumb{background:#333644;border-radius:6px}::-webkit-scrollbar-track{background:transparent}
+
+#topbar{flex:0 0 auto;display:flex;align-items:baseline;gap:10px;padding:12px 18px;background:linear-gradient(90deg,#15161c,#181a24);border-bottom:1px solid var(--line)}
+#topbar h1{font-size:17px;margin:0;font-weight:700;letter-spacing:.2px;background:linear-gradient(90deg,var(--accent),var(--accent2));-webkit-background-clip:text;background-clip:text;color:transparent}
+#topbar .ver{font-size:11px;color:var(--sub);border:1px solid var(--line);padding:2px 7px;border-radius:20px}
+#topbar .tag{margin-left:auto;font-size:11.5px;color:var(--sub)}
+
+#app{flex:1;min-height:0;display:grid;grid-template-columns:300px 1fr;gap:14px;padding:14px;overflow:hidden}
+
+#side{overflow:auto;padding:14px;background:var(--panel);border:1px solid var(--line);border-radius:12px}
+#side>b{display:block;font-size:12px;color:var(--sub);font-weight:600;text-transform:uppercase;letter-spacing:.4px;margin-bottom:6px}
+#side label{display:grid;grid-template-columns:1fr 88px;gap:6px;margin:5px 0;align-items:center}
+#side label span{color:#c7cbdb}
+input,button,select{font:inherit}
+input[type=number],input[type=text],select{width:88px;background:var(--panel2);color:var(--txt);border:1px solid var(--line);border-radius:6px;padding:5px 7px;outline:none}
+input[type=number]:focus,select:focus{border-color:var(--accent)}
+input[type=file]{width:100%;color:var(--sub);font-size:12px}
+input[type=checkbox]{width:17px;height:17px;accent-color:var(--accent)}
+button{background:var(--accent);color:#fff;border:0;padding:8px 12px;margin:4px 4px 4px 0;border-radius:7px;cursor:pointer;font-weight:600;transition:filter .15s}
+button:hover{filter:brightness(1.12)}button.o{background:var(--panel2);color:var(--sub);border:1px solid var(--line)}
+h4{margin:16px 0 6px;padding-top:10px;border-top:1px solid var(--line);color:var(--accent2);font-size:11.5px;text-transform:uppercase;letter-spacing:.6px;font-weight:700}
+h4:first-of-type{border-top:0;padding-top:0;margin-top:4px}
+#side>br+button{width:calc(50% - 6px)}
+
+#main{display:flex;flex-direction:column;min-width:0;background:var(--panel);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+#viewhead{flex:0 0 auto;display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid var(--line);background:var(--panel2)}
+#viewhead b{font-size:12.5px;letter-spacing:.3px}
+#viewhead small{color:var(--sub)}
+#tabs{margin-left:auto;display:flex;gap:6px}
+#tabs button{margin:0;padding:6px 14px;border-radius:20px;font-size:12px}
+#tabs button.o{background:transparent;border:1px solid var(--line)}
+#cv{flex:1;min-height:0;width:100%;touch-action:none;cursor:grab;background:radial-gradient(circle at 50% 35%,#1b1e29,#101116 75%)}
+#info{margin:0;padding:10px 14px;background:var(--panel2);border-top:1px solid var(--line);max-height:150px;overflow:auto;font-size:11.5px;line-height:1.5;white-space:pre-wrap;color:var(--sub);font-family:ui-monospace,Consolas,monospace}
+
+@media(max-width:860px){#app{grid-template-columns:1fr;height:auto;overflow:visible}#side{max-height:none}#cv{height:60vh}}
+
+#gate{position:fixed;inset:0;background:rgba(10,11,15,.92);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;z-index:999}
+#gate form{background:var(--panel);border:1px solid var(--line);padding:28px;border-radius:14px;width:300px;font:14px system-ui;color:var(--txt);box-shadow:0 20px 60px rgba(0,0,0,.5)}
+#gate h3{margin:0 0 2px;font-size:16px;background:linear-gradient(90deg,var(--accent),var(--accent2));-webkit-background-clip:text;background-clip:text;color:transparent}
+#gate p{margin:0 0 16px;color:var(--sub);font-size:12px}
+#gate label{display:block;margin:10px 0 4px;color:var(--sub);font-size:12px}
+#gate input{width:100%;padding:9px;background:var(--panel2);color:var(--txt);border:1px solid var(--line);border-radius:7px}
+#gate button{width:100%;margin-top:16px;padding:10px;background:linear-gradient(90deg,var(--accent),var(--accent2));color:#fff;border:0;border-radius:7px;cursor:pointer;font-weight:700}
+#gate button:disabled{opacity:.6;cursor:default}
+#gmsg{margin-top:10px;font-size:12px;min-height:14px}
+</style></head><body>
+<div id=gate><form id=gform>
+ <h3>Radilux Shadow Art Generator</h3>
+ <p>Enter your license to continue &middot; v1.1</p>
+ <label>Security key<input id=gkey autocomplete=off placeholder="SHADOW-XXXX-XXXX"></label>
+ <label>Phone number<input id=gphone autocomplete=off placeholder="+1 555 123 4567"></label>
+ <button id=gbtn>Activate</button>
+ <div id=gmsg></div>
+</form></div>
+<div id=topbar>
+ <h1>Radilux Shadow Art Generator</h1>
+ <span class=ver>v1.1</span>
+ <span class=tag>4-side laser-cut shadow art panel designer</span>
+</div>
+<div id=app>
+<div id=side></div>
+<div id=main>
+ <div id=viewhead><b>Live 3D Preview</b><small>drag&nbsp;=&nbsp;rotate&nbsp;&middot;&nbsp;wheel&nbsp;=&nbsp;zoom</small>
+  <div id=tabs><button id=t0>3D View</button><button id=t1 class=o>Shadow Test</button></div>
+ </div>
+ <canvas id=cv></canvas>
+ <pre id=info></pre>
+</div>
+</div>
+<script>
+const $=id=>document.getElementById(id);
+const FD=[['#','Shadow (on ground)'],['sw','Width',500],['sl','Length',500],['rot','Rotation °',0],['mx','Move X',0],['my','Move Y',0],['thr','Threshold 0-1',.5],
+['#','Wall: 4 flat panels'],['H','Light height',100],['W','Wall width',80],['L','Wall length',80],['wx','Wall move X',0],['wy','Wall move Y',0],['t','Sheet thickness',3],['bt','Base thickness',3],['rail','Electronics bay height',20],
+['#','Base plate holes'],['cd','Light hole Ø (0=off)',12.5],['md','Magnet hole Ø (0=off)',0],['mdist','Magnet offset',12],['btn','Button hole Ø, Back (0=off)',0],
+['#','Joinery'],['tabw','Base tab width mm',10],
+['#','Cleanup & labels'],['desp','Despeckle under __ mm²',0],['bw','Bridge width mm',1.5],['lbl_size','Label size mm',6],
+['#','Export'],['res','Resolution mm',.2],['kerf','Laser kerf mm',.15],['sheet','Sheet width mm',600],['gap','Piece gap mm',5]];
+$('side').innerHTML='<b>Shadow image (SVG / PNG / JPG)</b><input type=file id=f accept="image/*,.svg">'+
+'<label><span>Material thickness</span><select id=thk><option value=3>3 mm</option><option value=5>5 mm</option><option value=8>8 mm</option></select></label>'+
+'<label><span>Invert (light shape on dark)</span><input type=checkbox id=inv></label>'+
+'<label><span>Interlocking joinery</span><input type=checkbox id=join checked></label>'+
+'<label><span>Panel labels (engrave)</span><input type=checkbox id=lbl checked></label>'+
+'<label><span>Highlight bridges in 3D</span><input type=checkbox id=hlb checked></label>'+
+FD.map(d=>d[0]=='#'?`<h4>${d[1]}</h4>`:`<label><span>${d[1]}</span><input type=number step=any id=${d[0]} value=${d[2]}></label>`).join('')+'<br><button id=bs>Download SVG</button><button id=bd>Download DXF</button>';
+let P={},S=1,N=1024,G=new Float32Array(N*N),img=null,PN=[],GL=[],shDirty=1,tab=0,tm,cam={y:-.7,p:.5,z:1.5},dr=null;
+const cv=$('cv'),shc=document.createElement('canvas');
+function rd(){FD.forEach(d=>{if(d[0]!='#'){const v=parseFloat($(d[0]).value);P[d[0]]=isNaN(v)?d[2]:v}});
+ P.H=Math.max(P.H,10);P.sw=Math.max(P.sw,1);P.sl=Math.max(P.sl,1);P.join=$('join').checked;P.lbl_on=$('lbl').checked;S=.1/Math.max(P.sw,P.sl);
+ const usable=Math.max(1,P.H-P.bt);P._nf=Math.max(3,Math.round(usable/(3*P.t)));P._fh=usable/P._nf}
+function ingest(){if(!img)return;const c=document.createElement('canvas');c.width=c.height=N;const x=c.getContext('2d',{willReadFrequently:true});x.drawImage(img,0,0,N,N);const d=x.getImageData(0,0,N,N).data,iv=$('inv').checked;
+ for(let i=0;i<N*N;i++){const a=d[4*i+3]/255,l=(.299*d[4*i]+.587*d[4*i+1]+.114*d[4*i+2])/255;G[i]=a*(iv?l:1-l)}}
+function gs(u,v){if(u<0||v<0||u>1||v>1)return 0;let x=u*(N-1),y=v*(N-1),i=x|0,j=y|0;if(i>=N-1)i=N-2;if(j>=N-1)j=N-2;const fx=x-i,fy=y-j,k=j*N+i;
+ return(G[k]*(1-fx)+G[k+1]*fx)*(1-fy)+(G[k+N]*(1-fx)+G[k+N+1]*fx)*fy}
+function mask(X,Y){const a=P.rot*Math.PI/180,ca=Math.cos(a),sa=Math.sin(a);X-=P.mx;Y-=P.my;return gs((X*ca+Y*sa)/P.sw+.5,.5-(-X*sa+Y*ca)/P.sl)}
+// joinery helpers: tab centers along a panel's width, and the finger tooth pattern along height
+function tabCenters(w){const n=Math.max(2,Math.floor(w/40)),step=w/n,arr=[];for(let i=0;i<n;i++)arr.push(-w/2+step*(i+.5));return arr}
+function toothAt(z){return Math.floor(Math.min(P._nf-1,Math.max(0,(z-P.bt)/P._fh)))%2===0}
+function inTab(p,s){for(const c of p.tabs)if(Math.abs(s-c)<=P.tabw/2)return true;return false}
+// value of wall panel p at local (s along panel, z height): shadow cone ∩ wall plane, plus base rail + joinery
+function pf(p,s,z){
+ const half=p.w/2;
+ if(P.join){
+  if(z<P.bt)return inTab(p,s)?1:0;                              // tab plugs through the base plate
+  if(p.corner&&Math.abs(s)>half)return toothAt(z)?1:0;          // corner finger sticking out
+  if(p.notch&&Math.abs(s)>half-P.t&&toothAt(z))return 0;        // matching notch cut in
+ }
+ if(p.n=='Back'&&P.btn>0&&Math.hypot(s,z-(P.bt+P.rail/2))<=P.btn/2)return 0; // button hole
+ if(z<P.bt+P.rail)return 1;
+ const x=p.ax=='y'?p.o+p.sg*s:p.c,y=p.ax=='y'?p.c:p.o+p.sg*s,k=1+(S-1)*z/P.H;
+ return mask(x/k,y/k)}
+function panels(){const{W,L,t,wx,wy}=P,w2=Math.max(L-2*t,1);return[
+ {n:'Front',ax:'y',c:wy-(L/2-t/2),sg:1,o:wx,w:W,notch:true,tabs:tabCenters(W)},
+ {n:'Back',ax:'y',c:wy+(L/2-t/2),sg:-1,o:wx,w:W,notch:true,tabs:tabCenters(W)},
+ {n:'Left',ax:'x',c:wx-(W/2-t/2),sg:-1,o:wy,w:w2,corner:true,tabs:tabCenters(w2)},
+ {n:'Right',ax:'x',c:wx+(W/2-t/2),sg:1,o:wy,w:w2,corner:true,tabs:tabCenters(w2)}]}
+// --- raster grid: build once, despeckle, bridge disconnected islands, kerf-dilate, then extract loops ---
+function buildF(fn,x0,y0,x1,y1,h,lv){
+ const nx=Math.max(1,Math.ceil((x1-x0)/h)),ny=Math.max(1,Math.ceil((y1-y0)/h)),X=nx+3,Y=ny+3,F=new Float32Array(X*Y);
+ for(let b=0;b<Y;b++)for(let a=0;a<X;a++)F[b*X+a]=(a==0||b==0||a==X-1||b==Y-1)?-1:fn(Math.min(x0+(a-1)*h,x1),Math.min(y0+(b-1)*h,y1))-lv;
+ return{F,X,Y}}
+function extractLoops(F,X,Y,x0,y0,h){
+ const T=[0,[3,0],[0,1],[3,1],[1,2],[3,0,1,2],[0,2],[3,2],[2,3],[0,2],[0,1,2,3],[1,2],[1,3],[0,1],[3,0],0],adj=new Map(),ad=(p,q)=>{if(!adj.has(p))adj.set(p,[]);adj.get(p).push(q)};
+ for(let b=0;b<Y-1;b++)for(let a=0;a<X-1;a++){const k=b*X+a,c=(F[k]>0)|(F[k+1]>0)<<1|(F[k+X+1]>0)<<2|(F[k+X]>0)<<3,t=T[c];if(!t)continue;
+  const E=[2*k,2*(k+1)+1,2*(k+X),2*k+1];for(let i=0;i<t.length;i+=2){const p=E[t[i]],q=E[t[i+1]];ad(p,q);ad(q,p)}}
+ const pt=id=>{const d=id&1,k=id>>1,a=k%X,b=(k-a)/X,v1=F[k],v2=F[d?k+X:k+1],t=v1/(v1-v2);return[x0+(a-1)*h+(d?0:t*h),y0+(b-1)*h+(d?t*h:0)]};
+ const seen=new Set(),out=[],cl=(v,a,b)=>Math.max(a,Math.min(b,v)),x1=x0+(X-3)*h,y1=y0+(Y-3)*h;
+ for(const s0 of adj.keys()){if(seen.has(s0))continue;const l=[];let cur=s0,prev=-1;
+  while(!seen.has(cur)){seen.add(cur);l.push(pt(cur));const nb=adj.get(cur);const nn=(nb[0]===prev&&nb.length>1)?nb[1]:nb[0];prev=cur;cur=nn}
+  const r=simp(l.map(q=>[cl(q[0],x0,x1),cl(q[1],y0,y1)]),h*.15);if(r.length>2)out.push(r)}
+ return out}
+function contour(fn,x0,y0,x1,y1,h,lv){const g=buildF(fn,x0,y0,x1,y1,h,lv);return extractLoops(g.F,g.X,g.Y,x0,y0,h)}
+function components(F,X,Y){
+ const lab=new Int32Array(X*Y).fill(-1);let nc=0;const comps=[];
+ for(let s=0;s<X*Y;s++){if(F[s]<=0||lab[s]>=0)continue;const stack=[s];lab[s]=nc;const cells=[];
+  while(stack.length){const k=stack.pop();cells.push(k);const a=k%X;
+   const nbrs=[[k-1,a>0],[k+1,a<X-1],[k-X,true],[k+X,true]];
+   for(const[nb,ok]of nbrs){if(!ok||nb<0||nb>=X*Y)continue;if(F[nb]>0&&lab[nb]<0){lab[nb]=nc;stack.push(nb)}}}
+  comps.push(cells);nc++}
+ return comps}
+function boundaryPts(cells,F,X,x0,y0,h){
+ const pts=[];for(const k of cells){const a=k%X,b=(k-a)/X;
+  if(F[k-1]<=0||F[k+1]<=0||F[k-X]<=0||F[k+X]<=0)pts.push([x0+(a-1)*h,y0+(b-1)*h])}
+ return pts}
+function segDist(px,py,ax,ay,bx,by){const dx=bx-ax,dy=by-ay,l=dx*dx+dy*dy;let t=l?((px-ax)*dx+(py-ay)*dy)/l:0;t=Math.max(0,Math.min(1,t));
+ return Math.hypot(px-(ax+t*dx),py-(ay+t*dy))}
+function paintBridge(F,X,Y,x0,y0,h,p,q,w){
+ const a0=Math.max(1,Math.floor((Math.min(p[0],q[0])-w-x0)/h)),a1=Math.min(X-2,Math.ceil((Math.max(p[0],q[0])+w-x0)/h));
+ const b0=Math.max(1,Math.floor((Math.min(p[1],q[1])-w-y0)/h)),b1=Math.min(Y-2,Math.ceil((Math.max(p[1],q[1])+w-y0)/h));
+ for(let b=b0;b<=b1;b++)for(let a=a0;a<=a1;a++){const X0=x0+a*h,Y0=y0+b*h;
+  if(segDist(X0,Y0,p[0],p[1],q[0],q[1])<=w/2)F[b*X+a]=Math.max(F[b*X+a],1)}}
+function despeckleF(F,X,Y,h,minArea){
+ if(minArea<=0)return 0;const comps=components(F,X,Y);const cellA=h*h;let removed=0;
+ for(const cells of comps){if(cells.length*cellA<minArea){for(const k of cells)F[k]=-1;removed++}}
+ return removed}
+function bridgeF(F,X,Y,x0,y0,h,bw){
+ const comps=components(F,X,Y);if(comps.length<=1)return{made:0,segs:[]};
+ const pts=comps.map(cells=>{const b=boundaryPts(cells,F,X,x0,y0,h),st=Math.max(1,Math.floor(b.length/150));return b.filter((_,i)=>i%st===0)});
+ const n=pts.length,used=new Array(n).fill(false);used[0]=true;let cnt=1;const segs=[];
+ while(cnt<n){let bj=-1,bp=null,bq=null,bd=Infinity;
+  for(let i=0;i<n;i++)if(used[i])for(let j=0;j<n;j++)if(!used[j])
+   for(const p of pts[i])for(const q of pts[j]){const d=(p[0]-q[0])**2+(p[1]-q[1])**2;if(d<bd){bd=d;bj=j;bp=p;bq=q}}
+  if(bj<0)break;paintBridge(F,X,Y,x0,y0,h,bp,bq,bw);used[bj]=true;cnt++;segs.push([bp,bq])}
+ return{made:segs.length,segs}}
+// morphological grow of the solid mask by rc cells - standard kerf compensation (grow ALL material boundaries outward by kerf/2)
+function dilateF(F,X,Y,rc){
+ if(rc<=0)return;const src=F.slice();
+ for(let b=1;b<Y-1;b++)for(let a=1;a<X-1;a++){if(src[b*X+a]>0)continue;let hit=false;
+  for(let db=-rc;db<=rc&&!hit;db++)for(let da=-rc;da<=rc&&!hit;da++){if(da*da+db*db>rc*rc)continue;const bb=b+db,aa=a+da;if(bb<1||bb>=Y-1||aa<1||aa>=X-1)continue;if(src[bb*X+aa]>0)hit=true}
+  if(hit)F[b*X+a]=1}}
+// full pipeline for one wall panel: raster -> despeckle -> bridge -> [kerf] -> vector loops
+function processPanel(p,st,kerf){
+ const half=p.w/2,he=(P.join&&p.corner)?half+P.t:half,z0=P.join?0:P.bt;
+ const g=buildF((s,z)=>pf(p,s,z),-he,z0,he,P.H,st,P.thr);
+ p.removed=despeckleF(g.F,g.X,g.Y,st,P.desp);
+ const br=P.bw>0?bridgeF(g.F,g.X,g.Y,-he,z0,st,P.bw):{made:0,segs:[]};
+ p.bridges=br.segs;
+ if(kerf>0)dilateF(g.F,g.X,g.Y,Math.max(1,Math.round(kerf/2/st)));
+ p.loops=extractLoops(g.F,g.X,g.Y,-he,z0,st);
+ return p}
+function buildPanels(st,kerf){return panels().map(p=>processPanel(p,st,kerf||0))}
+// --- tiny single-stroke engraving font (only the letters used in labels) ---
+const FONT={
+ A:[[[0,0],[3,8],[6,0]],[[1.2,3],[4.8,3]]],
+ B:[[[0,0],[0,8]],[[0,8],[4,8],[5,7],[5,5],[4,4],[0,4]],[[4,4],[5,3],[5,1],[4,0],[0,0]]],
+ C:[[[6,7],[4,8],[2,8],[0,6],[0,2],[2,0],[4,0],[6,1]]],
+ E:[[[6,8],[0,8],[0,4],[4,4]],[[0,4],[0,0],[6,0]]],
+ F:[[[0,0],[0,8],[6,8]],[[0,4],[4,4]]],
+ G:[[[6,7],[4,8],[2,8],[0,6],[0,2],[2,0],[4,0],[6,1],[6,4],[4,4]]],
+ H:[[[0,0],[0,8]],[[6,0],[6,8]],[[0,4],[6,4]]],
+ I:[[[3,0],[3,8]]],
+ K:[[[0,0],[0,8]],[[6,8],[0,4],[6,0]]],
+ L:[[[0,8],[0,0],[6,0]]],
+ N:[[[0,0],[0,8],[6,0],[6,8]]],
+ O:[[[2,0],[0,2],[0,6],[2,8],[4,8],[6,6],[6,2],[4,0],[2,0]]],
+ P:[[[0,0],[0,8],[4,8],[5,7],[5,5],[4,4],[0,4]]],
+ R:[[[0,0],[0,8],[4,8],[5,7],[5,5],[4,4],[0,4]],[[3,4],[6,0]]],
+ S:[[[6,7],[5,8],[1,8],[0,7],[0,5],[1,4],[5,4],[6,3],[6,1],[5,0],[1,0],[0,1]]],
+ T:[[[0,8],[6,8]],[[3,8],[3,0]]]
+};
+function textWidth(str,size){const GW=6,SP=2,n=[...str.toUpperCase()].filter(c=>FONT[c]).length;return n?(n*(GW+SP)-SP)*(size/8):0}
+function textLines(str,cx,cy,size){
+ const GW=6,SP=2,scale=size/8,chars=[...str.toUpperCase()].filter(c=>FONT[c]);
+ const tw=(chars.length*(GW+SP)-SP)*scale;let x0=cx-tw/2;const out=[];
+ chars.forEach(c=>{FONT[c].forEach(stroke=>out.push(stroke.map(([ux,uy])=>[x0+ux*scale,cy+uy*scale])));x0+=(GW+SP)*scale});
+ return out}
+function wallLabel(p){let size=P.lbl_size;while(size>1&&textWidth(p.n,size)>p.w*.85)size-=.5;return textLines(p.n,0,P.join?P.bt+1:1,size)}
+function baseLabels(){const m=Math.max(4,P.lbl_size*.9),s=Math.max(2,Math.min(P.lbl_size,P.W*.18,P.L*.18));
+ return[...textLines('F',0,-P.L/2+m-s/2,s),...textLines('B',0,P.L/2-m-s/2,s),...textLines('L',-P.W/2+m-s/2,0-s/2,s),...textLines('R',P.W/2-m-s/2,0-s/2,s)]}
+const sd=(p,a,b)=>{const dx=b[0]-a[0],dy=b[1]-a[1],l=dx*dx+dy*dy;return l?Math.abs(dy*(p[0]-a[0])-dx*(p[1]-a[1]))/Math.sqrt(l):Math.hypot(p[0]-a[0],p[1]-a[1])};
+function dp(P_,e){if(P_.length<3)return P_;let m=0,k=0;const a=P_[0],b=P_[P_.length-1];for(let i=1;i<P_.length-1;i++){const d=sd(P_[i],a,b);if(d>m){m=d;k=i}}
+ return m>e?dp(P_.slice(0,k+1),e).slice(0,-1).concat(dp(P_.slice(k),e)):[a,b]}
+function simp(L,e){if(L.length<4)return L;let j=1,m=0;for(let i=1;i<L.length;i++){const d=Math.hypot(L[i][0]-L[0][0],L[i][1]-L[0][1]);if(d>m){m=d;j=i}}
+ return dp(L.slice(0,j+1),e).slice(0,-1).concat(dp(L.slice(j).concat([L[0]]),e).slice(0,-1))}
+const ar=l=>{let s=0;for(let i=0;i<l.length;i++){const a=l[i],b=l[(i+1)%l.length];s+=a[0]*b[1]-b[0]*a[1]}return s/2};
+const bb=ls=>{let r=null;ls.forEach(l=>l.forEach(q=>{if(!r)r=[q[0],q[1],q[0],q[1]];else{r[0]=Math.min(r[0],q[0]);r[1]=Math.min(r[1],q[1]);r[2]=Math.max(r[2],q[0]);r[3]=Math.max(r[3],q[1])}}));return r};
+const gr=()=>.5*Math.hypot(P.sw,P.sl)+Math.hypot(P.mx,P.my);
+function go(){rd();PN=buildPanels(Math.max(.4,Math.max(P.W,P.L)/150),0);const R=gr();GL=contour(mask,-R,-R,R,R,R/70,P.thr);shDirty=1;info();draw()}
+function info(){let s=`Light at (0,0,${P.H}) above shadow centre. Electronics bay: bottom ${P.rail} mm of every wall is solid - room for a battery + switch before gluing the top on.\nPanels cut from ${P.t} mm sheet. Order in export: Front, Back, Left, Right, Base.\n`;
+ s+=P.join?'Joinery ON: Left/Right have finger tabs into Front/Back at the corners, and every wall has tabs that plug through slots in the base.\n':'Joinery OFF: plain butt edges - glue Left/Right between Front/Back, and all 4 onto the base.\n';
+ if(P.kerf>0)s+=`Kerf compensation ${P.kerf} mm applied on export (not shown in this preview).\n`;
+ let tb=0,tr=0;
+ PN.forEach(p=>{const q=bb(p.loops),tiny=p.loops.filter(l=>Math.abs(ar(l))<1).length;tb+=(p.bridges||[]).length;tr+=p.removed||0;
+  s+=`${p.n}: ${p.w.toFixed(1)} x ${q?(q[3]-(P.join?0:P.bt)).toFixed(1):0} mm, ${p.loops.length} outlines${tiny?`, ${tiny} tiny (<1 mm²) - may fall out`:''}\n`});
+ if(P.bw>0)s+=tb?`${tb} bridge${tb>1?'s':''} (${P.bw} mm) will connect floating islands (shown green in 3D view).\n`:'No bridges needed - every panel is already one connected piece.\n';
+ if(P.desp>0)s+=tr?`${tr} speck${tr>1?'s':''} smaller than ${P.desp} mm² removed.\n`:'';
+ $('info').textContent=s}
+function draw(){tab?drawSh():draw3()}
+function draw3(){const g=cv.getContext('2d'),w=cv.width=cv.clientWidth,h=cv.height=cv.clientHeight;g.clearRect(0,0,w,h);
+ const R=Math.max(P.W,P.L,P.H)*cam.z,D=3*R,fl=1.8*Math.min(w,h),c1=Math.cos(cam.y),s1=Math.sin(cam.y),c2=Math.cos(cam.p),s2=Math.sin(cam.p);
+ const pr=(x,y,z)=>{const Z=z-P.H*.4,x1=x*c1-y*s1,y1=x*s1+y*c1,up=y1*s2+Z*c2,dep=y1*c2-Z*s2,f=fl/(D+dep);return[w/2+x1*f,h/2-up*f,dep]};
+ const poly=(pts,fill,stroke)=>{g.beginPath();pts.forEach((q,i)=>i?g.lineTo(q[0],q[1]):g.moveTo(q[0],q[1]));g.closePath();if(fill){g.fillStyle=fill;g.fill()}if(stroke){g.strokeStyle=stroke;g.stroke()}};
+ g.beginPath();GL.forEach(l=>{l.forEach((q,i)=>{const r=pr(q[0],q[1],0);i?g.lineTo(r[0],r[1]):g.moveTo(r[0],r[1])});g.closePath()});g.fillStyle='rgba(110,110,140,.35)';g.fill('evenodd');
+ const bx=[[-1,-1],[1,-1],[1,1],[-1,1]].map(k=>pr(P.wx+k[0]*P.W/2,P.wy+k[1]*P.L/2,P.bt));poly(bx,'#667','#aab');
+ const wp=(p,s,z)=>p.ax=='y'?[p.o+p.sg*s,p.c,z]:[p.c,p.o+p.sg*s,z];
+ const hlb=$('hlb').checked;
+ [...PN].sort((a,b)=>pr(...wp(b,0,P.H/2))[2]-pr(...wp(a,0,P.H/2))[2]).forEach(p=>{
+  g.beginPath();p.loops.forEach(l=>{l.forEach((q,i)=>{const r=pr(...wp(p,q[0],q[1]));i?g.lineTo(r[0],r[1]):g.moveTo(r[0],r[1])});g.closePath()});g.fillStyle='rgba(255,170,70,.85)';g.fill('evenodd');g.strokeStyle='#631';g.lineWidth=.7;g.stroke();
+  if(hlb&&P.bw>0&&p.bridges&&p.bridges.length){g.strokeStyle='#2f2';g.lineWidth=3;p.bridges.forEach(([a,b])=>{const A=pr(...wp(p,a[0],a[1])),B=pr(...wp(p,b[0],b[1]));g.beginPath();g.moveTo(A[0],A[1]);g.lineTo(B[0],B[1]);g.stroke()})}
+ });
+ const L0=pr(0,0,P.H),L1=pr(0,0,0);g.strokeStyle='#ff0';g.setLineDash([4,4]);g.beginPath();g.moveTo(L0[0],L0[1]);g.lineTo(L1[0],L1[1]);g.stroke();g.setLineDash([]);g.fillStyle='#ff0';g.beginPath();g.arc(L0[0],L0[1],5,0,7);g.fill();g.fillText('light',L0[0]+8,L0[1])}
+function drawSh(){const g=cv.getContext('2d'),w=cv.width=cv.clientWidth,h=cv.height=cv.clientHeight,M=320,R=gr();g.clearRect(0,0,w,h);
+ if(shDirty){shc.width=shc.height=M;const x=shc.getContext('2d'),im=x.createImageData(M,M),d=im.data;
+  for(let j=0;j<M;j++)for(let i=0;i<M;i++){const X=(i+.5)/M*2*R-R,Y=R-(j+.5)/M*2*R;let b=0;
+   for(const p of PN){const D=p.ax=='y'?Y:X;if(!D)continue;const k=p.c/D;if(k<=0||k>=1)continue;const z=P.H*(1-k);if(z<P.bt)continue;const s=p.sg*((p.ax=='y'?k*X:k*Y)-p.o);if(Math.abs(s)>p.w/2)continue;if(pf(p,s,z)>=P.thr){b=1;break}}
+   const q=4*(j*M+i);d[q]=b?30:245;d[q+1]=b?30:235;d[q+2]=b?40:200;d[q+3]=255}
+  x.putImageData(im,0,0);shDirty=0}
+ const sz=Math.min(w,h)-10,ox=(w-sz)/2,oy=(h-sz)/2;g.drawImage(shc,ox,oy,sz,sz);g.strokeStyle='#f44';g.lineWidth=1.5;g.beginPath();
+ GL.forEach(l=>{l.forEach((q,i)=>{const X=ox+(q[0]+R)/(2*R)*sz,Y=oy+(R-q[1])/(2*R)*sz;i?g.lineTo(X,Y):g.moveTo(X,Y)});g.closePath()});g.stroke();
+ g.fillStyle='#f66';g.fillText('red = target shadow outline; dark = shadow cast by the panels',ox+6,oy+14)}
+// --- export layout: build pieces, rotate for a better fit, pack shelves ---
+function insetRect(r,d){const xs=r.map(p=>p[0]),ys=r.map(p=>p[1]),x0=Math.min(...xs)-d,x1=Math.max(...xs)+d,y0=Math.min(...ys)-d,y1=Math.max(...ys)+d;return[[x0,y0],[x1,y0],[x1,y1],[x0,y1]]}
+function baseSlots(){const rects=[];panels().forEach(p=>{p.tabs.forEach(cs=>{
+  const wx_=p.ax=='y'?p.o+p.sg*cs:p.c,wy_=p.ax=='y'?p.c:p.o+p.sg*cs,hl=P.tabw/2,hw=P.t/2;
+  rects.push(p.ax=='y'?[[wx_-hl,wy_-hw],[wx_+hl,wy_-hw],[wx_+hl,wy_+hw],[wx_-hl,wy_+hw]]:[[wx_-hw,wy_-hl],[wx_+hw,wy_-hl],[wx_+hw,wy_+hl],[wx_-hw,wy_+hl]])});});
+ return rects}
+function rotatePiece(p){const rp=q=>[-q[1],q[0]];return{L:p.L.map(l=>l.map(rp)),T:(p.T||[]).map(l=>l.map(rp)),c:p.c.map(c=>[-c[1],c[0],c[2]])}}
+function packSheet(pieces){
+ const items=pieces.map(p=>{
+  const b0=bb(p.L),w0=b0[2]-b0[0],h0=b0[3]-b0[1];
+  const rp=rotatePiece(p),b1=bb(rp.L),w1=b1[2]-b1[0],h1=b1[3]-b1[1];
+  let use=p,b=b0,w=w0,h=h0;
+  if(w1<=P.sheet&&(h1<h0||w0>P.sheet)){use=rp;b=b1;w=w1;h=h1}
+  return{p:use,b,w,h}});
+ items.sort((a,b)=>b.h-a.h);
+ let cx=0,cy=0,rh=0,tw=0;
+ items.forEach(it=>{if(cx>0&&cx+it.w>P.sheet){cx=0;cy+=rh+P.gap;rh=0}
+  it.p.o=[cx-it.b[0],cy-it.b[1]];cx+=it.w+P.gap;rh=Math.max(rh,it.h);tw=Math.max(tw,cx-P.gap)});
+ return{pcs:items.map(it=>it.p),tw,th:cy+rh}}
+function layout(){
+ rd();const st=Math.max(.03,Math.min(P.res,P.bw>0?P.bw/4:P.res,P.kerf>0?P.kerf/3:P.res,P.join?P.t/6:P.res));
+ const built=buildPanels(st,P.kerf);
+ const pcs=built.map(p=>({L:p.loops.map(l=>l.map(q=>[q[0],q[1]-(P.join?0:P.bt)])),c:[],T:P.lbl_on?wallLabel(p):[]}));
+ const k2=P.kerf>0?P.kerf/2:0;
+ const B=insetRect([[-P.W/2,-P.L/2],[P.W/2,-P.L/2],[P.W/2,P.L/2],[-P.W/2,P.L/2]],k2);
+ const slots=P.join?baseSlots().map(r=>insetRect(r,-k2)):[];
+ const c=[];if(P.cd>0)c.push([-P.wx,-P.wy,Math.max(.1,P.cd/2-k2)]);
+ if(P.md>0)[1,-1].forEach(k=>c.push([-P.wx,k*P.mdist-P.wy,Math.max(.1,P.md/2-k2)]));
+ pcs.push({L:[B,...slots],c,T:P.lbl_on?baseLabels():[]});
+ return packSheet(pcs)}
+function svg(){const{pcs,tw,th}=layout(),f=(x,y)=>x.toFixed(3)+','+(th-y).toFixed(3);
+ let s=`<svg xmlns="http://www.w3.org/2000/svg" width="${tw.toFixed(2)}mm" height="${th.toFixed(2)}mm" viewBox="0 0 ${tw.toFixed(2)} ${th.toFixed(2)}">`;
+ s+='<g fill="none" stroke="#f00" stroke-width="0.1">';
+ pcs.forEach(p=>{p.L.forEach(l=>s+=`<path d="M${l.map(q=>f(q[0]+p.o[0],q[1]+p.o[1])).join(' L')}Z"/>`);p.c.forEach(c=>s+=`<circle cx="${(c[0]+p.o[0]).toFixed(3)}" cy="${(th-c[1]-p.o[1]).toFixed(3)}" r="${c[2]}"/>`)});
+ s+='</g><g fill="none" stroke="#08f" stroke-width="0.1">';
+ pcs.forEach(p=>{(p.T||[]).forEach(l=>s+=`<path d="M${l.map(q=>f(q[0]+p.o[0],q[1]+p.o[1])).join(' L')}"/>`)});
+ return s+'</g></svg>'}
+function dxf(){const{pcs}=layout();let s='0\nSECTION\n2\nENTITIES\n';
+ pcs.forEach(p=>{p.L.forEach(l=>{s+='0\nPOLYLINE\n8\nCUT\n66\n1\n10\n0\n20\n0\n30\n0\n70\n1\n';l.forEach(q=>s+=`0\nVERTEX\n8\nCUT\n10\n${(q[0]+p.o[0]).toFixed(4)}\n20\n${(q[1]+p.o[1]).toFixed(4)}\n30\n0\n`);s+='0\nSEQEND\n8\nCUT\n'});
+  p.c.forEach(c=>s+=`0\nCIRCLE\n8\nCUT\n10\n${(c[0]+p.o[0]).toFixed(4)}\n20\n${(c[1]+p.o[1]).toFixed(4)}\n30\n0\n40\n${c[2]}\n`);
+  (p.T||[]).forEach(l=>{s+='0\nPOLYLINE\n8\nLABEL\n66\n1\n10\n0\n20\n0\n30\n0\n70\n0\n';l.forEach(q=>s+=`0\nVERTEX\n8\nLABEL\n10\n${(q[0]+p.o[0]).toFixed(4)}\n20\n${(q[1]+p.o[1]).toFixed(4)}\n30\n0\n`);s+='0\nSEQEND\n8\nLABEL\n'})});
+ return s+'0\nENDSEC\n0\nEOF\n'}
+const dl=(n,t,m)=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([t],{type:m}));a.download=n;a.click()};
+$('bs').onclick=()=>dl('shadow_panels.svg',svg(),'image/svg+xml');
+$('bd').onclick=()=>dl('shadow_panels.dxf',dxf(),'application/dxf');
+// events
+const sched=()=>{clearTimeout(tm);tm=setTimeout(go,120)};
+document.querySelectorAll('input[type=number],#inv,#lbl,#hlb,#join').forEach(e=>e.oninput=e.onchange=()=>{if(e.id=='inv')ingest();sched()});
+$('thk').onchange=()=>{$('t').value=$('thk').value;$('bt').value=$('thk').value;sched()};
+$('f').onchange=e=>{const f=e.target.files[0];if(!f)return;const im=new Image();im.onload=()=>{img=im;const r=im.naturalHeight/im.naturalWidth;if(r&&isFinite(r))$('sl').value=(+$('sw').value*r).toFixed(1);ingest();go()};im.src=URL.createObjectURL(f)};
+$('t0').onclick=()=>{tab=0;$('t0').className='';$('t1').className='o';draw()};$('t1').onclick=()=>{tab=1;$('t1').className='';$('t0').className='o';draw()};
+cv.onpointerdown=e=>{dr=[e.clientX,e.clientY];cv.setPointerCapture(e.pointerId)};cv.onpointerup=()=>dr=null;
+cv.onpointermove=e=>{if(!dr||tab)return;cam.y+=(e.clientX-dr[0])*.01;cam.p=Math.max(-1.5,Math.min(1.5,cam.p+(e.clientY-dr[1])*.01));dr=[e.clientX,e.clientY];draw()};
+cv.onwheel=e=>{e.preventDefault();cam.z=Math.max(.2,cam.z*(e.deltaY>0?1.1:.9));draw()};
+addEventListener('resize',draw);
+// default heart shape
+{const c=document.createElement('canvas');c.width=c.height=1024;const x=c.getContext('2d');x.fillStyle='#000';x.beginPath();x.moveTo(512,940);x.bezierCurveTo(40,560,130,120,512,380);x.bezierCurveTo(894,120,984,560,512,940);x.fill();img=c;ingest();go()}
+// --- activation gate: security key + phone, checked against the Netlify function ---
+(function(){
+ const LK='sa_auth',DAYS=30;
+ $('side').style.display='none';$('main').style.display='none';
+ function unlock(){$('gate').remove();$('side').style.display='';$('main').style.display='';draw()}
+ try{const saved=JSON.parse(localStorage.getItem(LK)||'null');if(saved&&saved.exp>Date.now()){unlock();return}}catch(e){}
+ $('gform').onsubmit=async e=>{
+  e.preventDefault();const btn=$('gbtn'),msg=$('gmsg');btn.disabled=true;msg.style.color='#9ab';msg.textContent='Checking...';
+  try{
+   const r=await fetch('/.netlify/functions/activate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({key:$('gkey').value,phone:$('gphone').value})});
+   const d=await r.json();
+   if(d.ok){localStorage.setItem(LK,JSON.stringify({exp:Date.now()+DAYS*864e5}));unlock()}
+   else{msg.style.color='#f66';msg.textContent=d.msg||'Activation failed';btn.disabled=false}
+  }catch(err){msg.style.color='#f66';msg.textContent='Network error - try again';btn.disabled=false}
+ };
+})();
+</script></body></html>
