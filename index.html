@@ -49,6 +49,7 @@ details[open] summary::before{transform:rotate(90deg)}
 #gate input{width:100%;padding:9px;background:var(--panel2);color:var(--txt);border:1px solid var(--line);border-radius:7px}
 #gate button{width:100%;margin-top:16px;padding:10px;background:linear-gradient(90deg,var(--accent),var(--accent2));color:#fff;border:0;border-radius:7px;cursor:pointer;font-weight:700}
 #gate button:disabled{opacity:.6;cursor:default}
+#gate button.o{background:var(--panel2);color:var(--sub);border:1px solid var(--line);margin-top:8px}
 #gmsg{margin-top:10px;font-size:12px;min-height:14px}
 </style></head><body>
 <div id=gate><form id=gform>
@@ -57,6 +58,7 @@ details[open] summary::before{transform:rotate(90deg)}
  <label>Security key<input id=gkey autocomplete=off placeholder="SHADOW-XXXX-XXXX"></label>
  <label>Phone number<input id=gphone autocomplete=off placeholder="+1 555 123 4567"></label>
  <button id=gbtn>Activate</button>
+ <button type=button id=gskip class=o>Developer Bypass</button>
  <div id=gmsg></div>
 </form></div>
 <div id=topbar>
@@ -357,6 +359,7 @@ addEventListener('resize',draw);
  const LK='sa_auth',DAYS=30;
  $('side').style.display='none';$('main').style.display='none';
  function unlock(){$('gate').remove();$('side').style.display='';$('main').style.display='';draw()}
+ $('gskip').onclick=()=>{unlock()};
  try{const saved=JSON.parse(localStorage.getItem(LK)||'null');if(saved&&saved.exp>Date.now()){unlock();return}}catch(e){}
  $('gform').onsubmit=async e=>{
   e.preventDefault();const btn=$('gbtn'),msg=$('gmsg');btn.disabled=true;msg.style.color='#9ab';msg.textContent='Checking...';
