@@ -20,6 +20,11 @@ body{font:13px/1.45 Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFo
 #filenameWrap label{font-size:9px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);font-weight:800}
 #fileName{width:190px;height:34px;border:0;outline:none;background:transparent;color:#e9eef5;font-weight:700}
 #fileName::placeholder{color:#53677b}
+#licenseWrap{display:flex;align-items:center;gap:7px;padding:5px 8px;border:1px solid #2d3d50;border-radius:9px;background:#0d141c}
+#licenseWrap label{font-size:9px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);font-weight:800}
+#licenseKey{width:155px;height:34px;border:0;outline:none;background:transparent;color:#e9eef5;font-weight:750;letter-spacing:.02em}
+#licenseKey::placeholder{color:#53677b}
+
 #useBtn{height:42px;padding:0 13px;border-radius:9px;border:1px solid #34506a;background:#142333;color:#9db7cf;font-weight:800;cursor:pointer;display:none}
 #useBtn:hover{background:#193147;color:#fff}
 #generateBtn{height:44px;padding:0 21px;border:1px solid #ffd17e;border-radius:10px;background:linear-gradient(180deg,#ffc45c,#ff9945);color:#1b1004;font-size:14px;font-weight:950;cursor:pointer;box-shadow:0 8px 24px rgba(255,160,70,.16);flex:0 0 auto}
@@ -42,11 +47,44 @@ body{font:13px/1.45 Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFo
 @keyframes spin{to{transform:rotate(360deg)}}@keyframes slide{0%{transform:translateX(-120%)}100%{transform:translateX(300%)}}
 #status{position:absolute;left:16px;bottom:13px;z-index:10;padding:6px 9px;border:1px solid #26384b;border-radius:8px;background:rgba(10,16,23,.86);color:#7f93a9;font-size:9.5px;pointer-events:none;opacity:0;transition:opacity .2s}
 #status.show{opacity:1}
-@media(max-width:1100px){#brand{min-width:210px}#filenameWrap{display:none}.toolAction{padding:0 9px;font-size:9px}}
+
+/* ---------- License gate ---------- */
+#licenseGate{position:fixed;inset:0;z-index:5000;display:flex;align-items:center;justify-content:center;padding:22px;background:radial-gradient(circle at 50% 35%,rgba(255,184,77,.08),transparent 36%),rgba(4,8,12,.97);backdrop-filter:blur(12px)}
+#licenseGate.hidden{display:none}
+#licenseCard{width:min(460px,calc(100vw - 30px));padding:30px 30px 26px;border:1px solid #31445a;border-radius:18px;background:linear-gradient(180deg,#111a24,#0c131b);box-shadow:0 30px 100px rgba(0,0,0,.62),0 0 0 1px rgba(255,255,255,.02) inset}
+#licenseBrand{display:flex;align-items:center;gap:12px;margin-bottom:22px}
+#licenseMark{width:44px;height:44px;border-radius:12px;display:grid;place-items:center;font-size:18px;font-weight:950;color:#1b1209;background:linear-gradient(135deg,var(--accent),#ffe1a7);box-shadow:0 8px 26px rgba(255,184,77,.18)}
+#licenseBrand h2{margin:0;font-size:18px;line-height:1.1;font-weight:900;letter-spacing:-.02em}
+#licenseBrand small{display:block;margin-top:4px;color:var(--muted);font-size:10px}
+#licenseTitle{font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:#ffca72;font-weight:900;margin-bottom:7px}
+#licenseHeading{margin:0;font-size:24px;font-weight:900;letter-spacing:-.03em}
+#licenseInfo{margin:8px 0 21px;color:#91a5b9;font-size:11px;line-height:1.55}
+.licenseField{margin-top:12px}
+.licenseField label{display:block;margin-bottom:6px;color:#aab9c8;font-size:10px;letter-spacing:.06em;text-transform:uppercase;font-weight:850}
+.licenseInput{width:100%;height:46px;border:1px solid #304154;border-radius:10px;background:#0a1118;color:#edf3f8;outline:none;padding:0 13px;font-size:14px;font-weight:750;letter-spacing:.035em}
+.licenseInput:focus{border-color:#627e9c;box-shadow:0 0 0 3px rgba(98,126,156,.13)}
+#licenseActivate{width:100%;height:46px;margin-top:18px;border:1px solid #ffd17e;border-radius:10px;background:linear-gradient(180deg,#ffc45c,#ff9945);color:#1b1004;font-size:13px;font-weight:950;cursor:pointer;box-shadow:0 9px 26px rgba(255,160,70,.16)}
+#licenseActivate:hover{filter:brightness(1.05);transform:translateY(-1px)}
+#licenseActivate:disabled{opacity:.65;cursor:wait;transform:none}
+#licenseMsg{min-height:20px;margin-top:12px;font-size:11px;line-height:1.5;color:#9db0c2;text-align:center}
+#licenseMsg.error{color:#ff907d}
+#licenseMsg.success{color:#aee7c6}
+#licenseMsg.warn{color:#ffca72}
+#licenseAttempts{text-align:center;margin-top:5px;color:#667b90;font-size:10px}
+#licenseLock{display:none;text-align:center}
+#licenseLock.show{display:block}
+#licenseLoginForm.hide{display:none}
+#licenseShield{width:64px;height:64px;margin:0 auto 15px;border-radius:16px;display:grid;place-items:center;border:1px solid #6a392f;background:#231613;color:#ff8e78;font-size:28px;font-weight:950}
+#licenseLock h2{margin:0;color:#ff9a84;font-size:22px}
+#licenseLock p{margin:10px 0 0;color:#a8b7c5;font-size:11px;line-height:1.6}
+#licenseRetry{width:100%;height:42px;margin-top:18px;border:1px solid #3a5168;border-radius:9px;background:#142230;color:#c4d3e1;font-weight:850;cursor:pointer}
+@media(max-width:560px){#licenseCard{padding:23px 20px 21px}#licenseHeading{font-size:21px}}
+
+@media(max-width:1100px){#brand{min-width:210px}#filenameWrap,#licenseWrap{display:none}.toolAction{padding:0 9px;font-size:9px}}
 @media(max-width:900px){#projectActions .toolAction:not(.primary){padding:0 7px}.toolAction#loadProjectBtn{display:none}}
-@media(max-width:760px){#projectActions{gap:4px}.toolAction{height:36px;padding:0 7px;font-size:8.5px}.toolAction#undoBtn,.toolAction#redoBtn{width:34px;padding:0;font-size:18px}}
+@media(max-width:760px){#projectActions{gap:4px}.toolAction{height:36px;padding:0 7px;font-size:8.5px}}
 @media(max-width:760px){#top{height:58px;padding:8px 10px;gap:8px}#brand small{display:none}#brand h1{font-size:14px}#mark{width:32px;height:32px}#brand{min-width:0}#nav button{padding:0 9px;height:34px;font-size:10.5px}#useBtn{height:36px;padding:0 8px;font-size:10px}#generateBtn{height:38px;padding:0 11px;font-size:12px}}
-</style><link rel="preload" href="./radilux-engine-v12.js" as="script">
+</style>
 </head><body>
 <div id="shell">
 <header id="top">
@@ -56,8 +94,7 @@ body{font:13px/1.45 Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFo
 <div id="actions">
 <div id="filenameWrap"><label for="fileName">File name</label><input id="fileName" value="radilux_shadow_art" placeholder="radilux_shadow_art"></div>
 <div id="projectActions">
-<button id="undoBtn" class="toolAction" type="button" title="Undo last setting change (Ctrl+Z)">↶</button>
-<button id="redoBtn" class="toolAction" type="button" title="Redo setting change (Ctrl+Y)">↷</button>
+<div id="licenseWrap"><label for="licenseKey">License</label><input id="licenseKey" type="text" value="" placeholder="Not activated" autocomplete="off" spellcheck="false" maxlength="64" readonly title="Bound license key"></div>
 <button id="loadProjectBtn" class="toolAction" type="button">LOAD PROJECT</button>
 <button id="exportProjectBtn" class="toolAction primary" type="button">EXPORT PROJECT</button>
 <input id="projectFileInput" type="file" accept=".zip,.radilux.zip,application/zip" hidden>
@@ -66,32 +103,154 @@ body{font:13px/1.45 Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFo
 </header>
 <main id="workspace"><iframe id="prepFrame" class="toolFrame active" title="Image Prep"></iframe><iframe id="genFrame" class="toolFrame" title="Shadow Art Generator"></iframe><div id="status"></div></main>
 </div>
+
+<div id="licenseGate">
+  <div id="licenseCard">
+    <div id="licenseBrand"><div id="licenseMark">R</div><div><h2>Radilux Shadow Art Generator</h2><small>Licensed production software</small></div></div>
+    <div id="licenseLoginForm">
+      <div id="licenseTitle">License activation</div>
+      <h1 id="licenseHeading">Enter your license details</h1>
+      <div id="licenseInfo">Enter the license key supplied by Radilux and the phone number that should be permanently bound to this license.</div>
+      <div class="licenseField"><label for="loginLicenseKey">License Key</label><input id="loginLicenseKey" class="licenseInput" type="text" autocomplete="off" spellcheck="false" maxlength="64" placeholder="e.g. RDLX-XXXX-XXXX-XXXX"></div>
+      <div class="licenseField"><label for="loginPhone">Phone Number</label><input id="loginPhone" class="licenseInput" type="tel" inputmode="tel" autocomplete="tel" maxlength="18" placeholder="+91 98XXXXXXXX"></div>
+      <button id="licenseActivate" type="button">ACTIVATE LICENSE</button>
+      <div id="licenseMsg" aria-live="polite"></div>
+      <div id="licenseAttempts"></div>
+    </div>
+    <div id="licenseLock">
+      <div id="licenseShield">!</div>
+      <h2>ILLEGAL / UNAUTHORIZED USE WARNING</h2>
+      <p>This license has been locked after 3 unsuccessful activation attempts with a different phone number. The Radilux tool will remain unavailable until the license is reset by the license administrator.</p>
+      <button id="licenseRetry" type="button">CHECK LICENSE STATUS AGAIN</button>
+      <div id="licenseMsgLock" aria-live="polite" style="min-height:20px;margin-top:10px;color:#7f93a9;font-size:10px"></div>
+    </div>
+  </div>
+</div>
 <div id="loader"><div id="loaderCard"><div id="spinner"></div><div id="loadTitle">Generating</div><div id="loadMsg">Please wait…</div><div id="loadBar"><i></i></div></div></div>
-<script src="./radilux-engine-v12.js"></script>
 <script>
 'use strict';
-const PREP_B64=window.RADILUX_ENGINE.PREP_B64,GEN_B64=window.RADILUX_ENGINE.GEN_B64,$=id=>document.getElementById(id);
-function decodeB64(s){const bytes=Uint8Array.from(atob(s),c=>c.charCodeAt(0));return new TextDecoder().decode(bytes)}
+const $=id=>document.getElementById(id);
 const prepFrame=$('prepFrame'),genFrame=$('genFrame');
-prepFrame.srcdoc=decodeB64(PREP_B64);
+let PREP_B64='',GEN_B64='';
+let engineReadyPromise=null;
+function decodeB64(s){const bytes=Uint8Array.from(atob(s),c=>c.charCodeAt(0));return new TextDecoder().decode(bytes)}
+function showEngineError(msg){
+  const text=String(msg||'Unknown engine loading error');
+  prepFrame.srcdoc=`<!doctype html><html><body style="margin:0;height:100vh;display:grid;place-items:center;background:#0b0f14;color:#dbe7f2;font:14px system-ui,sans-serif"><div style="max-width:620px;padding:24px;text-align:center"><div style="font-size:18px;font-weight:800;margin-bottom:8px">Radilux engine could not be loaded</div><div style="color:#91a6ba;line-height:1.6">${text.replace(/[&<>]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[m]))}</div><div style="margin-top:14px;color:#ffbd5c">Make sure <b>radilux-engine.js</b> is uploaded in the same Netlify folder as <b>index.html</b>.</div></div><noscript><div style="position:fixed;inset:0;display:grid;place-items:center;background:#070b10;color:#fff;font:16px system-ui">JavaScript is required for Radilux Shadow Art Generator.</div></noscript></body></html>`;
+}
+function ensureEngine(){
+  if(window.RADILUX_ENGINE&&window.RADILUX_ENGINE.PREP_B64&&window.RADILUX_ENGINE.GEN_B64)return Promise.resolve(window.RADILUX_ENGINE);
+  if(engineReadyPromise)return engineReadyPromise;
+  engineReadyPromise=new Promise((resolve,reject)=>{
+    const s=document.createElement('script');
+    s.src='./radilux-engine.js';
+    s.async=false;
+    s.onload=()=>{
+      const E=window.RADILUX_ENGINE;
+      if(E&&E.PREP_B64&&E.GEN_B64)resolve(E);
+      else reject(new Error('The engine file loaded, but its Radilux engine data is missing.'));
+    };
+    s.onerror=()=>reject(new Error('radilux-engine.js was not found or could not be downloaded.'));
+    document.head.appendChild(s);
+  });
+  return engineReadyPromise;
+}
+async function initRadiluxEngine(){
+  try{
+    const E=await ensureEngine();
+    PREP_B64=E.PREP_B64; GEN_B64=E.GEN_B64;
+    prepFrame.srcdoc=decodeB64(PREP_B64);
+    $('generateBtn').style.display='none';
+  }catch(e){
+    console.error(e);
+    showEngineError(e.message);
+    $('generateBtn').style.display='none';
+  }
+}
 let genLoaded=false,genLoadingPromise=null;
 function ensureGenLoaded(){
   if(genLoaded)return Promise.resolve(genFrame);
   if(genLoadingPromise)return genLoadingPromise;
-  genLoadingPromise=new Promise(resolve=>{
-    const onload=()=>{genLoaded=true;genFrame.removeEventListener('load',onload);resolve(genFrame)};
-    genFrame.addEventListener('load',onload);
-    genFrame.srcdoc=decodeB64(GEN_B64);
+  genLoadingPromise=ensureEngine().then(E=>{
+    PREP_B64=E.PREP_B64; GEN_B64=E.GEN_B64;
+    return new Promise((resolve,reject)=>{
+      let settled=false;
+      const onload=()=>{if(settled)return;settled=true;genLoaded=true;genFrame.removeEventListener('load',onload);resolve(genFrame)};
+      const ontimeout=()=>{if(settled)return;settled=true;genFrame.removeEventListener('load',onload);reject(new Error('Shadow Art Generator took too long to initialize.'))};
+      genFrame.addEventListener('load',onload);
+      genFrame.srcdoc=decodeB64(GEN_B64);
+      setTimeout(ontimeout,20000);
+    });
   });
   return genLoadingPromise;
 }
 let activeTool='prep',dirty=false,RADILUX_FILE_NAME='radilux_shadow_art';
 let currentInputFile=null;
-let history=[],historyIndex=-1,historyTimer=null,suppressHistory=false,lastHistorySig='';
 window.RADILUX_FILE_NAME=RADILUX_FILE_NAME;
 
 function cleanFileBase(v){return String(v||'radilux_shadow_art').trim().replace(/\.[A-Za-z0-9]{1,8}$/,'').replace(/[^A-Za-z0-9_-]+/g,'_').replace(/^_+|_+$/g,'')||'radilux_shadow_art'}
-$('fileName').addEventListener('input',e=>{RADILUX_FILE_NAME=cleanFileBase(e.target.value);window.RADILUX_FILE_NAME=RADILUX_FILE_NAME;scheduleHistoryCommit()});
+$('fileName').addEventListener('input',e=>{RADILUX_FILE_NAME=cleanFileBase(e.target.value);window.RADILUX_FILE_NAME=RADILUX_FILE_NAME});
+$('licenseKey').readOnly=true;
+window.RADILUX_LICENSE_KEY='';
+const AUTH_ENDPOINT='./.netlify/functions/license';
+const AUTH_TOKEN_KEY='radilux_auth_token_v1';
+const AUTH_LICENSE_KEY='radilux_license_key_v1';
+let authReady=false;
+let loginBusy=false;
+function setTopLicense(v){const raw=String(v||'').trim();$('licenseKey').value=raw;window.RADILUX_LICENSE_KEY=raw;}
+function getStoredToken(){try{return localStorage.getItem(AUTH_TOKEN_KEY)||''}catch(e){return ''}}
+function getStoredLicense(){try{return localStorage.getItem(AUTH_LICENSE_KEY)||''}catch(e){return ''}}
+function storeAuth(token,key){try{localStorage.setItem(AUTH_TOKEN_KEY,token);localStorage.setItem(AUTH_LICENSE_KEY,key)}catch(e){}}
+function clearAuth(){try{localStorage.removeItem(AUTH_TOKEN_KEY);localStorage.removeItem(AUTH_LICENSE_KEY)}catch(e){};setTopLicense('')}
+function setLicenseMessage(text,kind=''){const e=$('licenseMsg');e.textContent=text||'';e.className=kind}
+function normalizePhoneUI(v){let d=String(v||'').replace(/[^0-9]/g,'');if(d.length===10)d='91'+d;return d}
+function showLoginGate(){authReady=false;$('licenseGate').classList.remove('hidden');$('licenseLoginForm').classList.remove('hide');$('licenseLock').classList.remove('show');$('licenseMsgLock').textContent='';}
+function showLockedGate(msg){authReady=false;$('licenseGate').classList.remove('hidden');$('licenseLoginForm').classList.add('hide');$('licenseLock').classList.add('show');$('licenseMsgLock').textContent=msg||'';}
+async function authRequest(payload){const r=await fetch(AUTH_ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json','Cache-Control':'no-store'},body:JSON.stringify(payload),cache:'no-store'});let data=null;try{data=await r.json()}catch(e){throw new Error('License server returned an invalid response.')}if(!r.ok){const err=new Error(data?.message||'License activation failed.');err.code=data?.code||'AUTH_ERROR';err.attemptsRemaining=data?.attemptsRemaining;throw err}return data}
+async function unlockAfterAuth(data,rawLicense){const key=String(rawLicense||data.licenseKey||getStoredLicense()).trim().toUpperCase();storeAuth(data.token,key);setTopLicense(key);$('licenseGate').classList.add('hidden');authReady=true;}
+async function activateLicense(){
+ if(loginBusy)return;
+ const key=String($('loginLicenseKey').value||'').trim().toUpperCase();
+ const phone=normalizePhoneUI($('loginPhone').value);
+ if(!key){setLicenseMessage('Enter your license key.','error');$('loginLicenseKey').focus();return}
+ if(phone.length<11||phone.length>15){setLicenseMessage('Enter a valid phone number.','error');$('loginPhone').focus();return}
+ loginBusy=true;$('licenseActivate').disabled=true;setLicenseMessage('Verifying license and phone binding…','warn');$('licenseAttempts').textContent='';
+ try{
+  const data=await authRequest({action:'activate',licenseKey:key,phone});
+  await unlockAfterAuth(data,key);
+  setLicenseMessage('License activated.','success');
+  await initRadiluxEngine();
+ }catch(e){
+  if(e.code==='LICENSE_LOCKED'||e.code==='UNAUTHORIZED_LOCK'){
+    clearAuth();showLockedGate(e.message||'This license is locked.');
+  }else if(e.code==='PHONE_MISMATCH'){
+    const n=Number.isFinite(e.attemptsRemaining)?e.attemptsRemaining:Math.max(0,3-Number(e.usedAttempts||0));
+    setLicenseMessage(e.message||'The phone number does not match the number already bound to this license.','error');
+    $('licenseAttempts').textContent=n+' attempt'+(n===1?'':'s')+' remaining';
+    if(n<=0)showLockedGate('The license reached the maximum number of unsuccessful attempts.');
+  }else{
+    setLicenseMessage(e.message||'Could not verify the license. Check the key and try again.','error');
+  }
+ }finally{loginBusy=false;$('licenseActivate').disabled=false}
+}
+async function verifyStoredSession(){
+ const token=getStoredToken(),key=getStoredLicense();
+ if(!token||!key){showLoginGate();return false}
+ try{
+  const data=await authRequest({action:'verify',token});
+  if(data.licenseKey)setTopLicense(data.licenseKey);else setTopLicense(key);
+  $('loginLicenseKey').value=key;
+  $('licenseGate').classList.add('hidden');authReady=true;return true;
+ }catch(e){
+  if(e.code==='LICENSE_LOCKED'||e.code==='UNAUTHORIZED_LOCK'){clearAuth();showLockedGate(e.message);return false}
+  if(e.code==='SESSION_EXPIRED'||e.code==='SESSION_INVALID'){clearAuth();showLoginGate();setLicenseMessage('Your license session expired. Please activate again.','warn');return false}
+  showLoginGate();setLicenseMessage(e.message||'License server is unavailable. Please try again.','error');return false;
+ }
+}
+$('licenseActivate').onclick=activateLicense;
+$('loginLicenseKey').addEventListener('keydown',e=>{if(e.key==='Enter')$('loginPhone').focus()});
+$('loginPhone').addEventListener('keydown',e=>{if(e.key==='Enter')activateLicense()});
+$('licenseRetry').onclick=async()=>{const ok=await verifyStoredSession();if(!ok&&!getStoredToken()){$('licenseMsgLock').textContent='If your license was reset by Radilux support, enter the license details again.'}};
 function showRadiluxLoading(title,msg){$('loadTitle').textContent=title||'Generating';$('loadMsg').textContent=msg||'Please wait…';$('loader').style.display='flex'}
 function hideRadiluxLoading(){$('loader').style.display='none'}
 window.showRadiluxLoading=showRadiluxLoading;window.hideRadiluxLoading=hideRadiluxLoading;
@@ -147,7 +306,7 @@ $('tabGen').onclick=async()=>{
 $('generateBtn').onclick=frameGenerate;
 window.addEventListener('message',e=>{if(e.data&&e.data.type==='radilux-dirty')setRadiluxDirty(true)});
 
-// ---------- Frame state / undo / redo ----------
+// ---------- Frame state / project restore ----------
 function frameValues(frame){
  if(!frame||!frame.contentDocument)return null;
  const out={};
@@ -167,41 +326,15 @@ function frameState(){
   prep:frameValues(prepFrame),
   gen:frameValues(genFrame),
   fileName:RADILUX_FILE_NAME,
+  licenseKey:window.RADILUX_LICENSE_KEY||'',
   inputName:currentInputFile?currentInputFile.name:''
  };
 }
-function stateSignature(st){
- const clean=o=>{if(!o)return null;const x={};Object.keys(o).sort().forEach(k=>x[k]=o[k]);return x};
- return JSON.stringify({prep:clean(st.prep),gen:clean(st.gen),fileName:st.fileName,inputName:st.inputName});
-}
-function updateHistoryButtons(){
- $('undoBtn').disabled=historyIndex<=0;
- $('redoBtn').disabled=historyIndex<0||historyIndex>=history.length-1;
-}
-function resetHistory(){
- clearTimeout(historyTimer);history=[];historyIndex=-1;lastHistorySig='';
- if(prepFrame.contentDocument){const st=frameState();history=[st];historyIndex=0;lastHistorySig=stateSignature(st)}
- updateHistoryButtons();
-}
-function scheduleHistoryCommit(){
- if(suppressHistory)return;
- clearTimeout(historyTimer);
- historyTimer=setTimeout(commitHistory,350);
-}
-function commitHistory(){
- if(suppressHistory)return;
- const st=frameState();if(!st)return;
- const sig=stateSignature(st);if(sig===lastHistorySig)return;
- if(historyIndex<history.length-1)history=history.slice(0,historyIndex+1);
- history.push(st);historyIndex++;lastHistorySig=sig;
- if(history.length>60){history.shift();historyIndex--;};
- updateHistoryButtons();
-}
 async function applyFrameState(st){
  if(!st)return;
- suppressHistory=true;
  try{
   RADILUX_FILE_NAME=cleanFileBase(st.fileName||'radilux_shadow_art');$('fileName').value=RADILUX_FILE_NAME;window.RADILUX_FILE_NAME=RADILUX_FILE_NAME;
+  if(typeof st.licenseKey==='string'){$('licenseKey').value=st.licenseKey;window.RADILUX_LICENSE_KEY=st.licenseKey}
   const restore=(frame,obj)=>{
    if(!frame||!obj||!frame.contentDocument)return;
    Object.entries(obj).forEach(([id,v])=>{
@@ -222,35 +355,12 @@ async function applyFrameState(st){
   const ga=genFrame.contentWindow.RadiluxGenerator;
   if(ga&&ga.generate&&ga.isDirty&&ga.isDirty())ga.generate();
   if(ga&&ga.setImageDataURL&&pa&&pa.getResultDataURL){
-    const u=pa.getResultDataURL();if(u)await ga.setImageDataURL(u,'Prepared artwork');
+   const u=pa.getResultDataURL();if(u)await ga.setImageDataURL(u,'Prepared artwork');
   }
   dirty=false;setRadiluxDirty(false);
- }finally{suppressHistory=false}
+ }catch(e){throw e}
 }
-async function undo(){
- if(historyIndex<=0)return;
- historyIndex--;
- if(history[historyIndex]&&history[historyIndex].gen&&!genLoaded)await ensureGenLoaded();
- if(genLoaded)attachGeneratorHooks();
- await applyFrameState(history[historyIndex]);
- lastHistorySig=stateSignature(history[historyIndex]);updateHistoryButtons();
-}
-async function redo(){
- if(historyIndex>=history.length-1)return;
- historyIndex++;
- if(history[historyIndex]&&history[historyIndex].gen&&!genLoaded)await ensureGenLoaded();
- if(genLoaded)attachGeneratorHooks();
- await applyFrameState(history[historyIndex]);
- lastHistorySig=stateSignature(history[historyIndex]);updateHistoryButtons();
-}
-$('undoBtn').onclick=undo;$('redoBtn').onclick=redo;
-document.addEventListener('keydown',e=>{
- const mod=e.ctrlKey||e.metaKey;if(!mod)return;
- if(e.key.toLowerCase()==='z'){e.preventDefault();e.shiftKey?redo():undo()}
- else if(e.key.toLowerCase()==='y'){e.preventDefault();redo()}
-});
-
-function bindFrameHistory(frame,kind){
+function bindFrameInputs(frame){
  if(!frame||!frame.contentDocument)return;
  const doc=frame.contentDocument;
  doc.querySelectorAll('input,select,textarea').forEach(el=>{
@@ -258,37 +368,15 @@ function bindFrameHistory(frame,kind){
   el.dataset.radiluxHostHook='1';
   const onChange=()=>{
    if(el.type==='file' && el.files&&el.files[0])currentInputFile=el.files[0];
-   scheduleHistoryCommit();
   };
   el.addEventListener('input',onChange);el.addEventListener('change',onChange);
  });
- if(kind==='prep'){
-  const vf=doc.querySelector('#viewToggle');
-  vf&&vf.querySelectorAll('button').forEach(b=>b.addEventListener('click',scheduleHistoryCommit));
- }
- if(historyIndex<0)resetHistory();
- else updateHistoryButtons();
 }
-function attachPrepHooks(){
- try{bindFrameHistory(prepFrame,'prep');bindFrameShortcuts(prepFrame)}catch(e){console.warn('prep hooks',e)}
-}
-function attachGeneratorHooks(){
- try{bindFrameHistory(genFrame,'gen');bindFrameShortcuts(genFrame)}catch(e){console.warn('generator hooks',e)}
-}
-function bindFrameShortcuts(frame){
- try{
-  const doc=frame.contentDocument;if(!doc||doc.documentElement.dataset.radiluxHistoryKeys)return;
-  doc.documentElement.dataset.radiluxHistoryKeys='1';
-  doc.addEventListener('keydown',e=>{
-   const mod=e.ctrlKey||e.metaKey;if(!mod)return;
-   if(e.key.toLowerCase()==='z'){e.preventDefault();e.stopPropagation();e.shiftKey?redo():undo()}
-   else if(e.key.toLowerCase()==='y'){e.preventDefault();e.stopPropagation();redo()}
-  },true);
- }catch(e){}
-}
+function attachPrepHooks(){try{bindFrameInputs(prepFrame); }catch(e){console.warn('prep hooks',e)}}
+function attachGeneratorHooks(){try{bindFrameInputs(genFrame); }catch(e){console.warn('generator hooks',e)}}
 prepFrame.addEventListener('load',()=>{attachPrepHooks();try{
  const f=prepFrame.contentDocument&&prepFrame.contentDocument.getElementById('fileInput');
- f&&f.addEventListener('change',()=>{if(f.files&&f.files[0]){currentInputFile=f.files[0];resetHistory()}});
+ f&&f.addEventListener('change',()=>{if(f.files&&f.files[0])currentInputFile=f.files[0]});
 }catch(e){}});
 
 // ---------- ZIP project writer/reader (STORE method, self-contained; no external library) ----------
@@ -369,7 +457,7 @@ async function exportProject(){
   const inputPath='input/'+currentInputFile.name.replace(/[^A-Za-z0-9._-]+/g,'_');
   const project={
     schema:1,app:'Radilux Shadow Art Generator',version:'commercial-project-v1',savedAt:new Date().toISOString(),
-    fileName:base,input:{name:currentInputFile.name,path:inputPath,type:currentInputFile.type||fileType(currentInputFile.name)},
+    fileName:base,licenseKey:window.RADILUX_LICENSE_KEY||'',input:{name:currentInputFile.name,path:inputPath,type:currentInputFile.type||fileType(currentInputFile.name)},
     prep:frameValues(prepFrame),generator:frameValues(genFrame),
     outputs:{svg:'exports/'+base+'.svg',png:'exports/'+base+'.png',dxf:'exports/'+base+'.dxf',stl:'exports/'+base+'.stl',glb:'exports/'+base+'.glb',py:'exports/'+base+'.py'}
   };
@@ -403,7 +491,6 @@ async function loadProject(file){
   await switchTool('prep');
   const pf=prepFrame.contentWindow;
   if(typeof pf.handleFiles!=='function')throw new Error('Image Prep is not ready');
-  suppressHistory=true;
   pf.handleFiles([currentInputFile]);
   showRadiluxLoading('Loading Radilux Project','Restoring image preparation settings…');
   const wait=async(fn,ms=12000)=>{const t=Date.now();while(Date.now()-t<ms){if(fn())return;await new Promise(r=>setTimeout(r,80))}throw new Error('Timed out while loading project')};
@@ -422,9 +509,9 @@ async function loadProject(file){
      was still loading in the background, which is what produced incorrect/erroring
      results after loading a project. */
   dirty=false;setRadiluxDirty(false);
-  suppressHistory=false;resetHistory();
+
   hideRadiluxLoading();showToastOuter('Project loaded successfully');
- }catch(e){console.error(e);hideRadiluxLoading();alert('Project load failed: '+e.message);suppressHistory=false}
+ }catch(e){console.error(e);hideRadiluxLoading();alert('Project load failed: '+e.message)}
  finally{$('exportProjectBtn').disabled=false;$('loadProjectBtn').disabled=false}
 }
 function showToastOuter(msg){let t=$('outerToast');if(!t){t=document.createElement('div');t.id='outerToast';Object.assign(t.style,{position:'fixed',right:'18px',bottom:'18px',zIndex:2000,padding:'10px 14px',borderRadius:'9px',background:'#142333',border:'1px solid #35516a',color:'#d9e7f4',fontSize:'11px',fontWeight:'800',boxShadow:'0 10px 30px rgba(0,0,0,.35)',transition:'opacity .25s'});document.body.appendChild(t)}t.textContent=msg;t.style.opacity='1';clearTimeout(t._tid);t._tid=setTimeout(()=>t.style.opacity='0',2600)}
@@ -432,6 +519,15 @@ $('exportProjectBtn').onclick=exportProject;
 $('loadProjectBtn').onclick=()=>$('projectFileInput').click();
 $('projectFileInput').addEventListener('change',()=>{const f=$('projectFileInput').files[0];if(f)loadProject(f);$('projectFileInput').value=''});
 
-// Initialize history once Image Prep finishes its first load, and keep the original prep auto-generation behavior intact.
-setTimeout(()=>{try{attachPrepHooks()}catch(e){}},200);
-</script></body></html>
+// License is verified before the browser downloads/initializes the generation engine.
+(async()=>{
+ try{
+  const ok=await verifyStoredSession();
+  if(ok){
+   await initRadiluxEngine();
+   setTimeout(()=>{try{attachPrepHooks()}catch(e){}},200);
+  }else if($('loginLicenseKey'))$('loginLicenseKey').focus();
+ }catch(e){console.error('Radilux license boot',e);showLoginGate();setLicenseMessage('Could not contact the license server.','error')}
+})();
+
+</script><noscript><div style="position:fixed;inset:0;display:grid;place-items:center;background:#070b10;color:#fff;font:16px system-ui">JavaScript is required for Radilux Shadow Art Generator.</div></noscript></body></html>
