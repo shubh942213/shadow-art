@@ -1,374 +1,437 @@
-<!doctype html><html lang=en><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><title>Radilux Shadow Art Generator v1.1</title>
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Radilux Shadow Art Generator</title>
 <style>
-:root{--bg:#101116;--panel:#181a21;--panel2:#1e212a;--line:#2a2d38;--txt:#e6e8ee;--sub:#8b91a5;--accent:#7c6cff;--accent2:#3fb6ff}
-*{box-sizing:border-box}html,body{height:100%}
-body{margin:0;font:13px/1.4 system-ui,-apple-system,Segoe UI,sans-serif;background:var(--bg);color:var(--txt);display:flex;flex-direction:column}
-::-webkit-scrollbar{width:9px;height:9px}::-webkit-scrollbar-thumb{background:#333644;border-radius:6px}::-webkit-scrollbar-track{background:transparent}
-#topbar{flex:0 0 auto;display:flex;align-items:baseline;gap:10px;padding:12px 18px;background:linear-gradient(90deg,#15161c,#181a24);border-bottom:1px solid var(--line)}
-#topbar h1{font-size:17px;margin:0;font-weight:700;letter-spacing:.2px;background:linear-gradient(90deg,var(--accent),var(--accent2));-webkit-background-clip:text;background-clip:text;color:transparent}
-#topbar .ver{font-size:11px;color:var(--sub);border:1px solid var(--line);padding:2px 7px;border-radius:20px}
-#topbar .tag{margin-left:auto;font-size:11.5px;color:var(--sub)}
-#app{flex:1;min-height:0;display:grid;grid-template-columns:300px 1fr;gap:14px;padding:14px;overflow:hidden}
-#side{overflow:hidden;background:var(--panel);border:1px solid var(--line);border-radius:12px;display:flex;flex-direction:column}
-#sideBody{overflow:auto;padding:14px;flex:1;min-height:0}
-#sideFoot{flex:0 0 auto;padding:12px 14px;border-top:1px solid var(--line);background:var(--panel2);display:flex;gap:8px;flex-wrap:wrap}
-#sideFoot button{flex:1;margin:0;min-width:120px}
-#sideBody>b{display:block;font-size:12px;color:var(--sub);font-weight:600;text-transform:uppercase;letter-spacing:.4px;margin-bottom:6px}
-#sideBody label{display:grid;grid-template-columns:1fr 88px;gap:6px;margin:5px 0;align-items:center}
-#sideBody label span{color:#c7cbdb;cursor:help;border-bottom:1px dotted #444;width:fit-content}
-input,button,select{font:inherit}
-input[type=number]{width:88px;background:var(--panel2);color:var(--txt);border:1px solid var(--line);border-radius:6px;padding:5px 7px;outline:none}
-input[type=number]:focus{border-color:var(--accent)}
-input[type=file]{width:100%;color:var(--sub);font-size:12px}
-input[type=checkbox]{width:17px;height:17px;accent-color:var(--accent)}
-button{background:var(--accent);color:#fff;border:0;padding:8px 12px;margin:4px 4px 4px 0;border-radius:7px;cursor:pointer;font-weight:600;transition:filter .15s}
-button:hover{filter:brightness(1.12)}button.o{background:var(--panel2);color:var(--sub);border:1px solid var(--line)}
-button:disabled{opacity:.5;cursor:default}
-details{border-top:1px solid var(--line);margin-top:10px;padding-top:2px}
-details:first-of-type{border-top:0;margin-top:4px}
-summary{cursor:pointer;list-style:none;display:flex;align-items:center;padding:8px 2px;color:var(--accent2);font-size:11.5px;text-transform:uppercase;letter-spacing:.6px;font-weight:700;user-select:none}
-summary::-webkit-details-marker{display:none}
-summary::before{content:'▸';display:inline-block;margin-right:6px;transition:transform .15s;color:var(--sub);font-size:10px}
-details[open] summary::before{transform:rotate(90deg)}
-.sec{padding:2px 2px 8px}
-#main{display:flex;flex-direction:column;min-width:0;background:var(--panel);border:1px solid var(--line);border-radius:12px;overflow:hidden}
-#viewhead{flex:0 0 auto;display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid var(--line);background:var(--panel2)}
-#viewhead b{font-size:12.5px;letter-spacing:.3px}
-#viewhead small{color:var(--sub)}
-#tabs{margin-left:auto;display:flex;gap:6px}
-#tabs button{margin:0;padding:6px 14px;border-radius:20px;font-size:12px}
-#tabs button.o{background:transparent;border:1px solid var(--line)}
-#cv{flex:1;min-height:0;width:100%;touch-action:none;cursor:grab;background:radial-gradient(circle at 50% 35%,#1b1e29,#101116 75%)}
-#info{margin:0;padding:10px 14px;background:var(--panel2);border-top:1px solid var(--line);max-height:150px;overflow:auto;font-size:11.5px;line-height:1.5;white-space:pre-wrap;color:var(--sub);font-family:ui-monospace,Consolas,monospace}
-@media(max-width:860px){#app{grid-template-columns:1fr;height:auto;overflow:visible}#side{max-height:none}#cv{height:60vh}}
-#gate{position:fixed;inset:0;background:rgba(10,11,15,.92);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;z-index:999}
-#gate form{background:var(--panel);border:1px solid var(--line);padding:28px;border-radius:14px;width:300px;font:14px system-ui;color:var(--txt);box-shadow:0 20px 60px rgba(0,0,0,.5)}
-#gate h3{margin:0 0 2px;font-size:16px;background:linear-gradient(90deg,var(--accent),var(--accent2));-webkit-background-clip:text;background-clip:text;color:transparent}
-#gate p{margin:0 0 16px;color:var(--sub);font-size:12px}
-#gate label{display:block;margin:10px 0 4px;color:var(--sub);font-size:12px}
-#gate input{width:100%;padding:9px;background:var(--panel2);color:var(--txt);border:1px solid var(--line);border-radius:7px}
-#gate button{width:100%;margin-top:16px;padding:10px;background:linear-gradient(90deg,var(--accent),var(--accent2));color:#fff;border:0;border-radius:7px;cursor:pointer;font-weight:700}
-#gate button:disabled{opacity:.6;cursor:default}
-#gate button.o{background:var(--panel2);color:var(--sub);border:1px solid var(--line);margin-top:8px}
-#gmsg{margin-top:10px;font-size:12px;min-height:14px}
-</style></head><body>
-<div id=gate><form id=gform>
- <h3>Radilux Shadow Art Generator</h3>
- <p>Enter your license to continue &middot; v1.1</p>
- <label>Security key<input id=gkey autocomplete=off placeholder="SHADOW-XXXX-XXXX"></label>
- <label>Phone number<input id=gphone autocomplete=off placeholder="+1 555 123 4567"></label>
- <button id=gbtn>Activate</button>
- <button type=button id=gskip class=o>Developer Bypass</button>
- <div id=gmsg></div>
-</form></div>
-<div id=topbar>
- <h1>Radilux Shadow Art Generator</h1>
- <span class=ver>v1.1</span>
- <span class=tag>Basic mode &middot; square box shadow art</span>
-</div>
-<div id=app>
-<div id=side><div id=sideBody></div><div id=sideFoot></div></div>
-<div id=main>
- <div id=viewhead><b>Live 3D Preview</b><small>drag&nbsp;=&nbsp;rotate&nbsp;&middot;&nbsp;wheel&nbsp;=&nbsp;zoom</small>
-  <div id=tabs><button id=t0>3D View</button><button id=t1 class=o>Shadow Test</button></div>
- </div>
- <canvas id=cv></canvas>
- <pre id=info></pre>
+*{box-sizing:border-box}html,body{height:100%;margin:0;overflow:hidden}
+:root{--bg:#070b10;--panel:#0e151d;--panel2:#121b25;--line:#263548;--text:#eaf0f6;--muted:#899bb0;--accent:#ffb84d;--accent2:#ff8a3d}
+body{font:13px/1.45 Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:var(--bg);color:var(--text)}
+#shell{height:100vh;display:flex;flex-direction:column;background:linear-gradient(135deg,#080c11,#0c1219 60%,#080c12)}
+#top{height:66px;display:flex;align-items:center;gap:14px;padding:9px 15px;border-bottom:1px solid var(--line);background:rgba(9,14,20,.97);box-shadow:0 8px 28px rgba(0,0,0,.2);z-index:20}
+#brand{display:flex;align-items:center;gap:10px;min-width:250px}
+#mark{width:36px;height:36px;border-radius:10px;display:grid;place-items:center;font-weight:950;color:#1b1209;background:linear-gradient(135deg,var(--accent),#ffe1a7);box-shadow:0 6px 22px rgba(255,184,77,.12)}
+#brand h1{font-size:17px;line-height:1.05;margin:0;font-weight:850;letter-spacing:-.02em}
+#brand small{display:block;color:var(--muted);font-size:9.5px;margin-top:3px}
+#nav{display:flex;align-items:center;gap:6px}
+#nav button{height:38px;padding:0 15px;border-radius:9px;border:1px solid #304053;background:#121c27;color:#a9b9ca;font-weight:800;cursor:pointer}
+#nav button:hover{background:#192533;color:#e3ebf4}
+#nav button.active{background:linear-gradient(180deg,#2b3b4b,#1d2935);color:#fff;border-color:#50677e}
+#actions{margin-left:auto;display:flex;align-items:center;gap:8px}
+#filenameWrap{display:flex;align-items:center;gap:7px;padding:5px 8px;border:1px solid #2d3d50;border-radius:9px;background:#0d141c}
+#filenameWrap label{font-size:9px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);font-weight:800}
+#fileName{width:190px;height:34px;border:0;outline:none;background:transparent;color:#e9eef5;font-weight:700}
+#fileName::placeholder{color:#53677b}
+#useBtn{height:42px;padding:0 13px;border-radius:9px;border:1px solid #34506a;background:#142333;color:#9db7cf;font-weight:800;cursor:pointer;display:none}
+#useBtn:hover{background:#193147;color:#fff}
+#generateBtn{height:44px;padding:0 21px;border:1px solid #ffd17e;border-radius:10px;background:linear-gradient(180deg,#ffc45c,#ff9945);color:#1b1004;font-size:14px;font-weight:950;cursor:pointer;box-shadow:0 8px 24px rgba(255,160,70,.16);flex:0 0 auto}
+#generateBtn:hover{filter:brightness(1.06);transform:translateY(-1px)}
+#generateBtn.busy{opacity:.72;cursor:wait}
+#projectActions{display:flex;align-items:center;gap:6px}
+.toolAction{height:40px;padding:0 11px;border:1px solid #304357;border-radius:9px;background:#121c27;color:#b8c8d8;font-weight:850;font-size:10px;letter-spacing:.03em;cursor:pointer;transition:all .15s ease;white-space:nowrap}
+.toolAction:hover{background:#1b2a39;color:#fff;border-color:#4a6480;transform:translateY(-1px)}
+.toolAction:disabled{opacity:.5;cursor:wait;transform:none}
+.toolAction.primary{border-color:#ffd17e;background:linear-gradient(180deg,#ffc45c,#ff9945);color:#1b1004;box-shadow:0 6px 18px rgba(255,160,70,.12)}
+#workspace{position:relative;flex:1;min-height:0}
+.toolFrame{position:absolute;inset:0;width:100%;height:100%;border:0;display:none;background:#0b0f14}
+.toolFrame.active{display:block}
+#loader{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(4,8,12,.72);backdrop-filter:blur(5px);z-index:1000}
+#loaderCard{width:360px;padding:22px;background:#101821;border:1px solid #2c3c4f;border-radius:14px;box-shadow:0 24px 80px rgba(0,0,0,.55)}
+#spinner{width:32px;height:32px;border:3px solid #2b3949;border-top-color:var(--accent);border-radius:50%;animation:spin .85s linear infinite;margin:0 auto 12px}
+#loadTitle{text-align:center;font-size:14px;font-weight:850}#loadMsg{text-align:center;color:var(--muted);font-size:11px;margin-top:4px;min-height:16px}
+#loadBar{height:7px;border-radius:99px;background:#0b1118;border:1px solid #2b3949;overflow:hidden;margin-top:14px}
+#loadBar i{display:block;width:45%;height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));animation:slide 1.2s ease-in-out infinite}
+@keyframes spin{to{transform:rotate(360deg)}}@keyframes slide{0%{transform:translateX(-120%)}100%{transform:translateX(300%)}}
+#status{position:absolute;left:16px;bottom:13px;z-index:10;padding:6px 9px;border:1px solid #26384b;border-radius:8px;background:rgba(10,16,23,.86);color:#7f93a9;font-size:9.5px;pointer-events:none;opacity:0;transition:opacity .2s}
+#status.show{opacity:1}
+@media(max-width:1100px){#brand{min-width:210px}#filenameWrap{display:none}.toolAction{padding:0 9px;font-size:9px}}
+@media(max-width:900px){#projectActions .toolAction:not(.primary){padding:0 7px}.toolAction#loadProjectBtn{display:none}}
+@media(max-width:760px){#projectActions{gap:4px}.toolAction{height:36px;padding:0 7px;font-size:8.5px}.toolAction#undoBtn,.toolAction#redoBtn{width:34px;padding:0;font-size:18px}}
+@media(max-width:760px){#top{height:58px;padding:8px 10px;gap:8px}#brand small{display:none}#brand h1{font-size:14px}#mark{width:32px;height:32px}#brand{min-width:0}#nav button{padding:0 9px;height:34px;font-size:10.5px}#useBtn{height:36px;padding:0 8px;font-size:10px}#generateBtn{height:38px;padding:0 11px;font-size:12px}}
+</style><link rel="preload" href="./radilux-engine-v12.js" as="script">
+</head><body>
+<div id="shell">
+<header id="top">
+<div id="brand"><div id="mark">R</div><div><h1>Radilux Shadow Art Generator</h1><small>Image preparation • shadow geometry • production exports</small></div></div>
+<button id="generateBtn" type="button">GENERATE</button>
+<nav id="nav"><button id="tabPrep" class="active">Image Prep</button><button id="tabGen">Shadow Art Generator</button></nav>
+<div id="actions">
+<div id="filenameWrap"><label for="fileName">File name</label><input id="fileName" value="radilux_shadow_art" placeholder="radilux_shadow_art"></div>
+<div id="projectActions">
+<button id="undoBtn" class="toolAction" type="button" title="Undo last setting change (Ctrl+Z)">↶</button>
+<button id="redoBtn" class="toolAction" type="button" title="Redo setting change (Ctrl+Y)">↷</button>
+<button id="loadProjectBtn" class="toolAction" type="button">LOAD PROJECT</button>
+<button id="exportProjectBtn" class="toolAction primary" type="button">EXPORT PROJECT</button>
+<input id="projectFileInput" type="file" accept=".zip,.radilux.zip,application/zip" hidden>
 </div>
 </div>
+</header>
+<main id="workspace"><iframe id="prepFrame" class="toolFrame active" title="Image Prep"></iframe><iframe id="genFrame" class="toolFrame" title="Shadow Art Generator"></iframe><div id="status"></div></main>
+</div>
+<div id="loader"><div id="loaderCard"><div id="spinner"></div><div id="loadTitle">Generating</div><div id="loadMsg">Please wait…</div><div id="loadBar"><i></i></div></div></div>
+<script src="./radilux-engine-v12.js"></script>
 <script>
-const $=id=>document.getElementById(id);
-// ---------------------------------------------------------------------------
-// BASIC MODE parameters - deliberately minimal. Everything else (joinery,
-// finger-notches, multi-hole base, labels, per-side sizing) has been removed:
-// notches were creating visible cross-shaped gaps in the projected shadow,
-// and the goal here is the cleanest, most correct silhouette possible.
-// ---------------------------------------------------------------------------
-const FD=[['#','Shadow'],['ssize','Shadow size mm',260],['mx','Shadow X offset',0],['my','Shadow Y offset',0],['thr','Threshold 0-1',.5],
-['#','Box (square, all 4 sides equal)'],['box','Box width = length',300],['hbox','Box height (walls)',180],['H','Light height above base',260],['bay','Battery/button compartment height',20],['t','Sheet thickness mm',3],
-['#','Export'],['sheet','Sheet width mm',600]];
-$('side').innerHTML=''; // (unused placeholder container removed in favor of sideBody/sideFoot below)
-const HINTS={ssize:'Real-world size of the shadow silhouette',mx:'Shift the shadow left/right',my:'Shift the shadow forward/back',thr:'Brightness cutoff between solid and open areas - raise if too much is cut away, lower if too little',
-box:'Outer width and length of the box - kept equal for a true square footprint',hbox:'Physical height of the 4 wall panels',H:'Height of the point light source above the base - can sit above the open top of the box',bay:'Solid opaque band at the bottom of every wall for a battery + switch',t:'Thickness of the sheet material you will cut the walls and base from',
-sheet:'Width of your laser bed / material sheet, for packing pieces'};
-const OPEN={'Shadow':1,'Box (square, all 4 sides equal)':1};
-$('sideBody').innerHTML='<b>Image</b><input type=file id=f accept="image/*,.svg">'+
-'<label><span title="Shows the light shape on a dark background instead of a dark shape on light">Invert image</span><input type=checkbox id=inv></label>'+
-(()=>{let html='',open=false;FD.forEach(d=>{
- if(d[0]=='#'){if(open)html+='</div></details>';html+=`<details${OPEN[d[1]]?' open':''}><summary>${d[1]}</summary><div class=sec>`;open=true}
- else html+=`<label><span title="${HINTS[d[0]]||''}">${d[1]}</span><input type=number step=any id=${d[0]} value=${d[2]} title="${HINTS[d[0]]||''}"></label>`});
- if(open)html+='</div></details>';return html})();
-$('sideFoot').innerHTML='<button id=bs>Download SVG</button><button id=bd>Download DXF</button><button id=bstl class=o>Download STL</button>';
-let P={},S=1,N=1024,G=new Float32Array(N*N),img=null,PN=[],GL=[],shDirty=1,tab=0,tm,cam={y:-.7,p:.5,z:1.5},dr=null;
-const cv=$('cv'),shc=document.createElement('canvas');
-// fixed internal quality constants (not exposed - this is "basic mode")
-const DESPECKLE_MM2=1.5, BRIDGE_MM=1.2, KERF_MM=0.15, SMOOTH_ITERS=2;
-function rd(){FD.forEach(d=>{if(d[0]!='#'){const v=parseFloat($(d[0]).value);P[d[0]]=isNaN(v)?d[2]:v}});
- P.hbox=Math.min(P.hbox,P.H); P.bay=Math.min(P.bay,P.hbox-1); P.box=Math.max(P.box,10); P.t=Math.max(P.t,.5);
- S=.1/Math.max(P.ssize,1)}
-function ingest(){if(!img)return;const c=document.createElement('canvas');c.width=c.height=N;const x=c.getContext('2d',{willReadFrequently:true});x.drawImage(img,0,0,N,N);const d=x.getImageData(0,0,N,N).data,iv=$('inv').checked;
- for(let i=0;i<N*N;i++){const a=d[4*i+3]/255,l=(.299*d[4*i]+.587*d[4*i+1]+.114*d[4*i+2])/255;G[i]=a*(iv?l:1-l)}}
-function gs(u,v){if(u<0||v<0||u>1||v>1)return 0;let x=u*(N-1),y=v*(N-1),i=x|0,j=y|0;if(i>=N-1)i=N-2;if(j>=N-1)j=N-2;const fx=x-i,fy=y-j,k=j*N+i;
- return(G[k]*(1-fx)+G[k+1]*fx)*(1-fy)+(G[k+N]*(1-fx)+G[k+N+1]*fx)*fy}
-function mask(X,Y){X-=P.mx;Y-=P.my;return gs(X/P.ssize+.5,.5-Y/P.ssize)}
-function pf(p,s,z){if(z<P.bay)return 1;
- const x=p.ax=='y'?p.sg*s:p.c,y=p.ax=='y'?p.c:p.sg*s,k=1+(S-1)*z/P.H;
- return mask(x/k,y/k)}
-function panels(){const B=P.box,t=P.t,w2=Math.max(B-2*t,1);return[
- {n:'Front',ax:'y',c:-(B/2-t/2),sg:1,w:B},
- {n:'Back', ax:'y',c: (B/2-t/2),sg:-1,w:B},
- {n:'Left', ax:'x',c:-(B/2-t/2),sg:-1,w:w2},
- {n:'Right',ax:'x',c: (B/2-t/2),sg:1,w:w2}]}
-// ---- raster grid: build, despeckle, bridge, then extract Chaikin-smoothed loops ----
-function buildF(fn,x0,y0,x1,y1,h,lv){
- const nx=Math.max(1,Math.ceil((x1-x0)/h)),ny=Math.max(1,Math.ceil((y1-y0)/h)),X=nx+3,Y=ny+3,F=new Float32Array(X*Y);
- for(let b=0;b<Y;b++)for(let a=0;a<X;a++)F[b*X+a]=(a==0||b==0||a==X-1||b==Y-1)?-1:fn(Math.min(x0+(a-1)*h,x1),Math.min(y0+(b-1)*h,y1))-lv;
- return{F,X,Y}}
-function components(F,X,Y){
- const lab=new Int32Array(X*Y).fill(-1);let nc=0;const comps=[];
- for(let s=0;s<X*Y;s++){if(F[s]<=0||lab[s]>=0)continue;const stack=[s];lab[s]=nc;const cells=[];
-  while(stack.length){const k=stack.pop();cells.push(k);const a=k%X;
-   const nbrs=[[k-1,a>0],[k+1,a<X-1],[k-X,true],[k+X,true]];
-   for(const[nb,ok]of nbrs){if(!ok||nb<0||nb>=X*Y)continue;if(F[nb]>0&&lab[nb]<0){lab[nb]=nc;stack.push(nb)}}}
-  comps.push(cells);nc++}
- return comps}
-function despeckleF(F,X,Y,h,minArea){
- if(minArea<=0)return 0;const comps=components(F,X,Y);const cellA=h*h;let removed=0;
- for(const cells of comps){if(cells.length*cellA<minArea){for(const k of cells)F[k]=-1;removed++}}
- return removed}
-function boundaryPts(cells,F,X,x0,y0,h){
- const pts=[];for(const k of cells){const a=k%X,b=(k-a)/X;
-  if(F[k-1]<=0||F[k+1]<=0||F[k-X]<=0||F[k+X]<=0)pts.push([x0+(a-1)*h,y0+(b-1)*h])}
- return pts}
-function segDist(px,py,ax,ay,bx,by){const dx=bx-ax,dy=by-ay,l=dx*dx+dy*dy;let t=l?((px-ax)*dx+(py-ay)*dy)/l:0;t=Math.max(0,Math.min(1,t));
- return Math.hypot(px-(ax+t*dx),py-(ay+t*dy))}
-function paintBridge(F,X,Y,x0,y0,h,p,q,w){
- const a0=Math.max(1,Math.floor((Math.min(p[0],q[0])-w-x0)/h)),a1=Math.min(X-2,Math.ceil((Math.max(p[0],q[0])+w-x0)/h));
- const b0=Math.max(1,Math.floor((Math.min(p[1],q[1])-w-y0)/h)),b1=Math.min(Y-2,Math.ceil((Math.max(p[1],q[1])+w-y0)/h));
- for(let b=b0;b<=b1;b++)for(let a=a0;a<=a1;a++){const X0=x0+a*h,Y0=y0+b*h;
-  if(segDist(X0,Y0,p[0],p[1],q[0],q[1])<=w/2)F[b*X+a]=Math.max(F[b*X+a],1)}}
-function bridgeF(F,X,Y,x0,y0,h,bw){
- const comps=components(F,X,Y);if(comps.length<=1)return{made:0,segs:[]};
- const pts=comps.map(cells=>{const b=boundaryPts(cells,F,X,x0,y0,h),st=Math.max(1,Math.floor(b.length/150));return b.filter((_,i)=>i%st===0)});
- const n=pts.length,used=new Array(n).fill(false);used[0]=true;let cnt=1;const segs=[];
- while(cnt<n){let bj=-1,bp=null,bq=null,bd=Infinity;
-  for(let i=0;i<n;i++)if(used[i])for(let j=0;j<n;j++)if(!used[j])
-   for(const p of pts[i])for(const q of pts[j]){const d=(p[0]-q[0])**2+(p[1]-q[1])**2;if(d<bd){bd=d;bj=j;bp=p;bq=q}}
-  if(bj<0)break;paintBridge(F,X,Y,x0,y0,h,bp,bq,bw);used[bj]=true;cnt++;segs.push([bp,bq])}
- return{made:segs.length,segs}}
-function dilateF(F,X,Y,rc){
- if(rc<=0)return;const src=F.slice();
- for(let b=1;b<Y-1;b++)for(let a=1;a<X-1;a++){if(src[b*X+a]>0)continue;let hit=false;
-  for(let db=-rc;db<=rc&&!hit;db++)for(let da=-rc;da<=rc&&!hit;da++){if(da*da+db*db>rc*rc)continue;const bb=b+db,aa=a+da;if(bb<1||bb>=Y-1||aa<1||aa>=X-1)continue;if(src[bb*X+aa]>0)hit=true}
-  if(hit)F[b*X+a]=1}}
-function chaikin(pts,iters){
- for(let it=0;it<iters;it++){const out=[],n=pts.length;
-  for(let i=0;i<n;i++){const p0=pts[i],p1=pts[(i+1)%n];
-   out.push([p0[0]*.75+p1[0]*.25,p0[1]*.75+p1[1]*.25]);
-   out.push([p0[0]*.25+p1[0]*.75,p0[1]*.25+p1[1]*.75]);}
-  pts=out}
- return pts}
-const sd=(p,a,b)=>{const dx=b[0]-a[0],dy=b[1]-a[1],l=dx*dx+dy*dy;return l?Math.abs(dy*(p[0]-a[0])-dx*(p[1]-a[1]))/Math.sqrt(l):Math.hypot(p[0]-a[0],p[1]-a[1])};
-function dp(P_,e){if(P_.length<3)return P_;let m=0,k=0;const a=P_[0],b=P_[P_.length-1];for(let i=1;i<P_.length-1;i++){const d=sd(P_[i],a,b);if(d>m){m=d;k=i}}
- return m>e?dp(P_.slice(0,k+1),e).slice(0,-1).concat(dp(P_.slice(k),e)):[a,b]}
-function simp(L,e){if(L.length<4)return L;let j=1,m=0;for(let i=1;i<L.length;i++){const d=Math.hypot(L[i][0]-L[0][0],L[i][1]-L[0][1]);if(d>m){m=d;j=i}}
- return dp(L.slice(0,j+1),e).slice(0,-1).concat(dp(L.slice(j).concat([L[0]]),e).slice(0,-1))}
-function extractLoops(F,X,Y,x0,y0,h,smoothIters){
- const T=[0,[3,0],[0,1],[3,1],[1,2],[3,0,1,2],[0,2],[3,2],[2,3],[0,2],[0,1,2,3],[1,2],[1,3],[0,1],[3,0],0],adj=new Map(),ad=(p,q)=>{if(!adj.has(p))adj.set(p,[]);adj.get(p).push(q)};
- for(let b=0;b<Y-1;b++)for(let a=0;a<X-1;a++){const k=b*X+a,c=(F[k]>0)|(F[k+1]>0)<<1|(F[k+X+1]>0)<<2|(F[k+X]>0)<<3,t=T[c];if(!t)continue;
-  const E=[2*k,2*(k+1)+1,2*(k+X),2*k+1];for(let i=0;i<t.length;i+=2){const p=E[t[i]],q=E[t[i+1]];ad(p,q);ad(q,p)}}
- const pt=id=>{const d=id&1,k=id>>1,a=k%X,b=(k-a)/X,v1=F[k],v2=F[d?k+X:k+1],t=v1/(v1-v2);return[x0+(a-1)*h+(d?0:t*h),y0+(b-1)*h+(d?t*h:0)]};
- const seen=new Set(),out=[],cl=(v,a,b)=>Math.max(a,Math.min(b,v)),x1=x0+(X-3)*h,y1=y0+(Y-3)*h;
- for(const s0 of adj.keys()){if(seen.has(s0))continue;let l=[];let cur=s0,prev=-1;
-  while(!seen.has(cur)){seen.add(cur);l.push(pt(cur));const nb=adj.get(cur);const nn=(nb[0]===prev&&nb.length>1)?nb[1]:nb[0];prev=cur;cur=nn}
-  l=l.map(q=>[cl(q[0],x0,x1),cl(q[1],y0,y1)]);
-  if(smoothIters>0)l=chaikin(l,smoothIters);
-  const r=simp(l,h*.12);if(r.length>2)out.push(r)}
- return out}
-function processPanel(p,st,kerf){
- const half=p.w/2;
- const g=buildF((s,z)=>pf(p,s,z),-half,0,half,P.hbox,st,P.thr);
- p.removed=despeckleF(g.F,g.X,g.Y,st,DESPECKLE_MM2);
- const br=bridgeF(g.F,g.X,g.Y,-half,0,st,BRIDGE_MM);
- p.bridges=br.segs;
- if(kerf>0)dilateF(g.F,g.X,g.Y,Math.max(1,Math.round(kerf/2/st)));
- p.loops=extractLoops(g.F,g.X,g.Y,-half,0,st,SMOOTH_ITERS);
- return p}
-function buildPanels(st,kerf){return panels().map(p=>processPanel(p,st,kerf||0))}
-const ar=l=>{let s=0;for(let i=0;i<l.length;i++){const a=l[i],b=l[(i+1)%l.length];s+=a[0]*b[1]-b[0]*a[1]}return s/2};
-const bb=ls=>{let r=null;ls.forEach(l=>l.forEach(q=>{if(!r)r=[q[0],q[1],q[0],q[1]];else{r[0]=Math.min(r[0],q[0]);r[1]=Math.min(r[1],q[1]);r[2]=Math.max(r[2],q[0]);r[3]=Math.max(r[3],q[1])}}));return r};
-const gr=()=>.5*P.ssize+Math.hypot(P.mx,P.my)+20;
-function go(){rd();PN=buildPanels(Math.max(.4,P.box/150),0);const R=gr();const g=buildF(mask,-R,-R,R,R,R/70,P.thr);GL=extractLoops(g.F,g.X,g.Y,-R,-R,R/70,1);shDirty=1;info();draw()}
-function info(){let s=`Light sits ${P.H} mm above the base; box walls are ${P.hbox} mm tall (light may sit above the open top). Bottom ${P.bay} mm of every wall is solid - room for a battery + switch.\nSquare footprint ${P.box} x ${P.box} mm, ${P.t} mm sheet. Order in export: Front, Back, Left, Right, Base.\n`;
- let tb=0,tr=0;
- PN.forEach(p=>{tb+=(p.bridges||[]).length;tr+=p.removed||0;
-  s+=`${p.n}: ${p.w.toFixed(1)} mm wide, ${p.loops.length} outlines\n`});
- if(tb)s+=`${tb} small connector strut${tb>1?'s':''} added to keep floating shapes attached (green in 3D view).\n`;
- $('info').textContent=s}
-function draw(){tab?drawSh():draw3()}
-function draw3(){const g=cv.getContext('2d'),w=cv.width=cv.clientWidth,h=cv.height=cv.clientHeight;g.clearRect(0,0,w,h);
- const R=Math.max(P.box,P.H)*cam.z,D=3*R,fl=1.8*Math.min(w,h),c1=Math.cos(cam.y),s1=Math.sin(cam.y),c2=Math.cos(cam.p),s2=Math.sin(cam.p);
- const pr=(x,y,z)=>{const Z=z-P.hbox*.4,x1=x*c1-y*s1,y1=x*s1+y*c1,up=y1*s2+Z*c2,dep=y1*c2-Z*s2,f=fl/(D+dep);return[w/2+x1*f,h/2-up*f,dep]};
- const poly=(pts,fill,stroke)=>{g.beginPath();pts.forEach((q,i)=>i?g.lineTo(q[0],q[1]):g.moveTo(q[0],q[1]));g.closePath();if(fill){g.fillStyle=fill;g.fill()}if(stroke){g.strokeStyle=stroke;g.stroke()}};
- g.beginPath();GL.forEach(l=>{l.forEach((q,i)=>{const r=pr(q[0],q[1],0);i?g.lineTo(r[0],r[1]):g.moveTo(r[0],r[1])});g.closePath()});g.fillStyle='rgba(110,110,140,.35)';g.fill('evenodd');
- const bx=[[-1,-1],[1,-1],[1,1],[-1,1]].map(k=>pr(k[0]*P.box/2,k[1]*P.box/2,0));poly(bx,'#667','#aab');
- const wp=(p,s,z)=>p.ax=='y'?[p.sg*s,p.c,z]:[p.c,p.sg*s,z];
- [...PN].sort((a,b)=>pr(...wp(b,0,P.hbox/2))[2]-pr(...wp(a,0,P.hbox/2))[2]).forEach(p=>{
-  g.beginPath();p.loops.forEach(l=>{l.forEach((q,i)=>{const r=pr(...wp(p,q[0],q[1]));i?g.lineTo(r[0],r[1]):g.moveTo(r[0],r[1])});g.closePath()});g.fillStyle='rgba(255,170,70,.85)';g.fill('evenodd');g.strokeStyle='#631';g.lineWidth=.7;g.stroke();
-  if(p.bridges&&p.bridges.length){g.strokeStyle='#2f2';g.lineWidth=3;p.bridges.forEach(([a,b])=>{const A=pr(...wp(p,a[0],a[1])),B=pr(...wp(p,b[0],b[1]));g.beginPath();g.moveTo(A[0],A[1]);g.lineTo(B[0],B[1]);g.stroke()})}
+'use strict';
+const PREP_B64=window.RADILUX_ENGINE.PREP_B64,GEN_B64=window.RADILUX_ENGINE.GEN_B64,$=id=>document.getElementById(id);
+function decodeB64(s){const bytes=Uint8Array.from(atob(s),c=>c.charCodeAt(0));return new TextDecoder().decode(bytes)}
+const prepFrame=$('prepFrame'),genFrame=$('genFrame');
+prepFrame.srcdoc=decodeB64(PREP_B64);
+let genLoaded=false,genLoadingPromise=null;
+function ensureGenLoaded(){
+  if(genLoaded)return Promise.resolve(genFrame);
+  if(genLoadingPromise)return genLoadingPromise;
+  genLoadingPromise=new Promise(resolve=>{
+    const onload=()=>{genLoaded=true;genFrame.removeEventListener('load',onload);resolve(genFrame)};
+    genFrame.addEventListener('load',onload);
+    genFrame.srcdoc=decodeB64(GEN_B64);
+  });
+  return genLoadingPromise;
+}
+let activeTool='prep',dirty=false,RADILUX_FILE_NAME='radilux_shadow_art';
+let currentInputFile=null;
+let history=[],historyIndex=-1,historyTimer=null,suppressHistory=false,lastHistorySig='';
+window.RADILUX_FILE_NAME=RADILUX_FILE_NAME;
+
+function cleanFileBase(v){return String(v||'radilux_shadow_art').trim().replace(/\.[A-Za-z0-9]{1,8}$/,'').replace(/[^A-Za-z0-9_-]+/g,'_').replace(/^_+|_+$/g,'')||'radilux_shadow_art'}
+$('fileName').addEventListener('input',e=>{RADILUX_FILE_NAME=cleanFileBase(e.target.value);window.RADILUX_FILE_NAME=RADILUX_FILE_NAME;scheduleHistoryCommit()});
+function showRadiluxLoading(title,msg){$('loadTitle').textContent=title||'Generating';$('loadMsg').textContent=msg||'Please wait…';$('loader').style.display='flex'}
+function hideRadiluxLoading(){$('loader').style.display='none'}
+window.showRadiluxLoading=showRadiluxLoading;window.hideRadiluxLoading=hideRadiluxLoading;
+function setRadiluxDirty(v){dirty=!!v;$('status').textContent=dirty?'Changes not generated yet':'Ready';$('status').classList.toggle('show',dirty)}
+window.setRadiluxDirty=setRadiluxDirty;
+
+function switchTool(tool){
+ activeTool=tool;
+ $('tabPrep').classList.toggle('active',tool==='prep');
+ $('tabGen').classList.toggle('active',tool==='gen');
+ prepFrame.classList.toggle('active',tool==='prep');
+ genFrame.classList.toggle('active',tool==='gen');
+ $('generateBtn').style.display=tool==='gen'?'inline-flex':'none';
+}
+
+async function frameGenerate(){
+ if(activeTool!=='gen')return;
+ showRadiluxLoading('Shadow art generation','Processing current settings…');
+ $('generateBtn').classList.add('busy');
+ try{
+  await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));
+  await ensureGenLoaded();
+  const api=genFrame.contentWindow.RadiluxGenerator;
+  if(api&&api.generate)api.generate();
+  setRadiluxDirty(false);
+ }catch(e){console.error(e);alert('Generation failed: '+e.message)}finally{hideRadiluxLoading();$('generateBtn').classList.remove('busy')}
+}
+
+async function usePrepared(){
+ const api=prepFrame.contentWindow.RadiluxPrep;
+ if(!api||!api.hasResult||!api.hasResult()){alert('Generate the prepared image first.');return}
+ const url=api.getResultDataURL();
+ if(!url){alert('No prepared result is available.');return}
+ showRadiluxLoading('Sending artwork','Loading prepared silhouette into Shadow Art Generator…');
+ switchTool('gen');
+ try{
+  await ensureGenLoaded();
+  attachGeneratorHooks();
+  const g=genFrame.contentWindow.RadiluxGenerator;
+  if(g&&g.setImageDataURL)await g.setImageDataURL(url,'Prepared artwork');
+  dirty=false;
+ }catch(e){console.error(e);alert('Could not send the artwork to the Shadow Art Generator: '+e.message)}
+ finally{hideRadiluxLoading()}
+}
+window.usePreparedFromPrep=usePrepared;
+$('tabPrep').onclick=()=>switchTool('prep');
+$('tabGen').onclick=async()=>{
+ switchTool('gen');
+ if(!genLoaded){showRadiluxLoading('Loading Shadow Art Generator','Starting the 3D engine…')}
+ try{await ensureGenLoaded();attachGeneratorHooks()}catch(e){console.error(e);alert('Could not load the Shadow Art Generator: '+e.message)}
+ finally{hideRadiluxLoading()}
+};
+$('generateBtn').onclick=frameGenerate;
+window.addEventListener('message',e=>{if(e.data&&e.data.type==='radilux-dirty')setRadiluxDirty(true)});
+
+// ---------- Frame state / undo / redo ----------
+function frameValues(frame){
+ if(!frame||!frame.contentDocument)return null;
+ const out={};
+ frame.contentDocument.querySelectorAll('input,select,textarea').forEach(el=>{
+  if(!el.id)return;
+  if(el.type==='file')return; // file inputs cannot be meaningfully saved/restored
+  out[el.id]={type:el.type||el.tagName.toLowerCase(),value:el.value,checked:!!el.checked};
  });
- const L0=pr(0,0,P.H),L1=pr(0,0,P.hbox);g.strokeStyle='#ff0';g.setLineDash([4,4]);g.beginPath();g.moveTo(L0[0],L0[1]);g.lineTo(L1[0],L1[1]);g.stroke();g.setLineDash([]);g.fillStyle='#ff0';g.beginPath();g.arc(L0[0],L0[1],5,0,7);g.fill();g.fillText('light',L0[0]+8,L0[1])}
-function drawSh(){const g=cv.getContext('2d'),w=cv.width=cv.clientWidth,h=cv.height=cv.clientHeight,M=320,R=gr();g.clearRect(0,0,w,h);
- if(shDirty){shc.width=shc.height=M;const x=shc.getContext('2d'),im=x.createImageData(M,M),d=im.data;
-  for(let j=0;j<M;j++)for(let i=0;i<M;i++){const X=(i+.5)/M*2*R-R,Y=R-(j+.5)/M*2*R;let b=0;
-   for(const p of PN){const D=p.ax=='y'?Y:X;if(!D)continue;const k=p.c/D;if(k<=0||k>=1)continue;const z=P.H*(1-k);if(z<0||z>P.hbox)continue;const s=p.sg*((p.ax=='y'?k*X:k*Y));if(Math.abs(s)>p.w/2)continue;if(pf(p,s,z)>=P.thr){b=1;break}}
-   const q=4*(j*M+i);d[q]=b?30:245;d[q+1]=b?30:235;d[q+2]=b?40:200;d[q+3]=255}
-  x.putImageData(im,0,0);shDirty=0}
- const sz=Math.min(w,h)-10,ox=(w-sz)/2,oy=(h-sz)/2;g.drawImage(shc,ox,oy,sz,sz);g.strokeStyle='#f44';g.lineWidth=1.5;g.beginPath();
- GL.forEach(l=>{l.forEach((q,i)=>{const X=ox+(q[0]+R)/(2*R)*sz,Y=oy+(R-q[1])/(2*R)*sz;i?g.lineTo(X,Y):g.moveTo(X,Y)});g.closePath()});g.stroke();
- g.fillStyle='#f66';g.fillText('red = target shadow outline; dark = shadow cast by the panels',ox+6,oy+14)}
-// ---- export layout (2D sheet packing for SVG/DXF) ----
-function rotatePiece(p){const rp=q=>[-q[1],q[0]];return{L:p.L.map(l=>l.map(rp))}}
-function packSheet(pieces){
- const items=pieces.map(p=>{
-  const b0=bb(p.L),w0=b0[2]-b0[0],h0=b0[3]-b0[1];
-  const rp=rotatePiece(p),b1=bb(rp.L),w1=b1[2]-b1[0],h1=b1[3]-b1[1];
-  let use=p,b=b0,w=w0,h=h0;
-  if(w1<=P.sheet&&(h1<h0||w0>P.sheet)){use=rp;b=b1;w=w1;h=h1}
-  return{p:use,b,w,h}});
- items.sort((a,b)=>b.h-a.h);
- let cx=0,cy=0,rh=0,tw=0;
- items.forEach(it=>{if(cx>0&&cx+it.w>P.sheet){cx=0;cy+=rh+5;rh=0}
-  it.p.o=[cx-it.b[0],cy-it.b[1]];cx+=it.w+5;rh=Math.max(rh,it.h);tw=Math.max(tw,cx-5)});
- return{pcs:items.map(it=>it.p),tw,th:cy+rh}}
-function layout2D(){
- rd();const st=Math.max(.03,Math.min(.15,KERF_MM/3));
- const built=buildPanels(st,KERF_MM);
- const pcs=built.map(p=>({L:p.loops}));
- const k2=KERF_MM/2;
- const B=P.box/2+k2;
- pcs.push({L:[[[-B,-B],[B,-B],[B,B],[-B,B]]]});
- return packSheet(pcs)}
-function svg(){const{pcs,tw,th}=layout2D(),f=(x,y)=>x.toFixed(3)+','+(th-y).toFixed(3);
- let s=`<svg xmlns="http://www.w3.org/2000/svg" width="${tw.toFixed(2)}mm" height="${th.toFixed(2)}mm" viewBox="0 0 ${tw.toFixed(2)} ${th.toFixed(2)}"><g fill="none" stroke="#f00" stroke-width="0.1">`;
- pcs.forEach(p=>{p.L.forEach(l=>s+=`<path d="M${l.map(q=>f(q[0]+p.o[0],q[1]+p.o[1])).join(' L')}Z"/>`)});
- return s+'</g></svg>'}
-function dxf(){const{pcs}=layout2D();let s='0\nSECTION\n2\nENTITIES\n';
- pcs.forEach(p=>{p.L.forEach(l=>{s+='0\nPOLYLINE\n8\nCUT\n66\n1\n10\n0\n20\n0\n30\n0\n70\n1\n';l.forEach(q=>s+=`0\nVERTEX\n8\nCUT\n10\n${(q[0]+p.o[0]).toFixed(4)}\n20\n${(q[1]+p.o[1]).toFixed(4)}\n30\n0\n`);s+='0\nSEQEND\n8\nCUT\n'})});
- return s+'0\nENDSEC\n0\nEOF\n'}
-// ---- STL export: assembled 3D solid (polygon-with-holes -> ear-clip -> extrude -> watertight mesh) ----
-function polyArea3(p){let s=0;for(let i=0;i<p.length;i++){const a=p[i],b=p[(i+1)%p.length];s+=a[0]*b[1]-b[0]*a[1]}return s/2}
-function pointInPoly(pt,poly){let c=false;for(let i=0,j=poly.length-1;i<poly.length;j=i++){const xi=poly[i][0],yi=poly[i][1],xj=poly[j][0],yj=poly[j][1];
-  if(((yi>pt[1])!==(yj>pt[1]))&&(pt[0]<(xj-xi)*(pt[1]-yi)/(yj-yi)+xi))c=!c}
- return c}
-function classifyLoops(loops){
- const n=loops.length,areas=loops.map(l=>Math.abs(polyArea3(l)));
- const containers=loops.map(()=>[]);
- for(let i=0;i<n;i++)for(let j=0;j<n;j++){if(i===j)continue;if(pointInPoly(loops[i][0],loops[j]))containers[i].push(j)}
- const groups=[];
- for(let i=0;i<n;i++)if(containers[i].length%2===0)groups.push({outer:loops[i],holes:[],outerIdx:i});
- for(let i=0;i<n;i++)if(containers[i].length%2===1){
-  let parent=-1,pa=Infinity;containers[i].forEach(j=>{if(areas[j]<pa){pa=areas[j];parent=j}});
-  const g=groups.find(g=>g.outerIdx===parent);if(g)g.holes.push(loops[i]);
- }
- return groups}
-function bridgeHoles(outer,holes){
- let poly=outer.slice();
- holes.forEach(hole=>{
-  let bi=0,hi=0,bd=Infinity;
-  for(let i=0;i<poly.length;i++)for(let j=0;j<hole.length;j++){const d=(poly[i][0]-hole[j][0])**2+(poly[i][1]-hole[j][1])**2;if(d<bd){bd=d;bi=i;hi=j}}
-  const hr=hole.slice(hi).concat(hole.slice(0,hi));
-  poly=poly.slice(0,bi+1).concat(hr).concat([hr[0]]).concat([poly[bi]]).concat(poly.slice(bi+1));
- });
- return poly}
-function cross2(o,a,b){return(a[0]-o[0])*(b[1]-o[1])-(a[1]-o[1])*(b[0]-o[0])}
-function coincident(a,b){return Math.abs(a[0]-b[0])<1e-7&&Math.abs(a[1]-b[1])<1e-7}
-function pointInTri(p,a,b,c){const d1=cross2(p,a,b),d2=cross2(p,b,c),d3=cross2(p,c,a);const neg=(d1<0)||(d2<0)||(d3<0),pos=(d1>0)||(d2>0)||(d3>0);return!(neg&&pos)}
-function earClip(poly){
- if(polyArea3(poly)<0)poly=poly.slice().reverse();
- const P_=poly,V=poly.map((_,i)=>i),tris=[];let guard=0;
- while(V.length>3&&guard++<200000){
-  let found=false;
-  for(let i=0;i<V.length;i++){
-   const i0=V[(i-1+V.length)%V.length],i1=V[i],i2=V[(i+1)%V.length];
-   const a=P_[i0],b=P_[i1],c=P_[i2];
-   if(cross2(a,b,c)<=1e-9)continue;
-   let ok=true;
-   for(let k=0;k<V.length;k++){const vi=V[k];if(vi===i0||vi===i1||vi===i2)continue;const p=P_[vi];
-    if(coincident(p,a)||coincident(p,b)||coincident(p,c))continue;
-    if(pointInTri(p,a,b,c)){ok=false;break}}
-   if(ok){tris.push([i0,i1,i2]);V.splice(i,1);found=true;break}
-  }
-  if(!found)break;
- }
- if(V.length===3)tris.push([V[0],V[1],V[2]]);
- return{tris,pts:P_}}
-function triangulateWithHoles(loops){
- const groups=classifyLoops(loops),allTris=[];
- groups.forEach(g=>{const simple=g.holes.length?bridgeHoles(g.outer,g.holes):g.outer;const{tris,pts}=earClip(simple);tris.forEach(t=>allTris.push([pts[t[0]],pts[t[1]],pts[t[2]]]))});
- return allTris}
-function extrudeToTris(loops,thickness,xf,nrm){
- const tris3d=[];
- const off=(pt,o)=>{const w=xf(pt[0],pt[1]);return[w[0]+nrm[0]*o,w[1]+nrm[1]*o,w[2]+nrm[2]*o]};
- const capTris=triangulateWithHoles(loops);
- capTris.forEach(t=>{tris3d.push([off(t[0],-thickness/2),off(t[1],-thickness/2),off(t[2],-thickness/2)]);tris3d.push([off(t[0],thickness/2),off(t[2],thickness/2),off(t[1],thickness/2)])});
- loops.forEach(loop=>{for(let i=0;i<loop.length;i++){const a=loop[i],b=loop[(i+1)%loop.length];
-  const a0=off(a,-thickness/2),a1=off(a,thickness/2),b0=off(b,-thickness/2),b1=off(b,thickness/2);
-  tris3d.push([a0,b0,b1]);tris3d.push([a0,b1,a1])}});
- return tris3d}
-function stlAscii(name,triGroups){
- let s=`solid ${name}\n`;
- triGroups.forEach(tris=>tris.forEach(t=>{
-  const ux=t[1][0]-t[0][0],uy=t[1][1]-t[0][1],uz=t[1][2]-t[0][2],vx=t[2][0]-t[0][0],vy=t[2][1]-t[0][1],vz=t[2][2]-t[0][2];
-  let nx=uy*vz-uz*vy,ny=uz*vx-ux*vz,nz=ux*vy-uy*vx;const len=Math.hypot(nx,ny,nz)||1;nx/=len;ny/=len;nz/=len;
-  s+=` facet normal ${nx.toFixed(6)} ${ny.toFixed(6)} ${nz.toFixed(6)}\n  outer loop\n`;
-  t.forEach(v=>s+=`   vertex ${v[0].toFixed(4)} ${v[1].toFixed(4)} ${v[2].toFixed(4)}\n`);
-  s+=`  endloop\n endfacet\n`}));
- return s+`endsolid ${name}\n`}
-function stlExport(){
- rd();const st=Math.max(.05,Math.min(.2,KERF_MM/3));
- const built=buildPanels(st,KERF_MM);
- const groups=[];
- built.forEach(p=>{
-  const xf=(s,z)=>p.ax=='y'?[p.sg*s,p.c,z]:[p.c,p.sg*s,z];
-  const nrm=p.ax=='y'?[0,1,0]:[1,0,0];
-  groups.push(extrudeToTris(p.loops,P.t,xf,nrm));
- });
- const B=P.box/2;
- const baseLoop=[[-B,-B],[B,-B],[B,B],[-B,B]];
- const xfBase=(s,z)=>[s,z,-P.t/2];
- groups.push(extrudeToTris([baseLoop],P.t,xfBase,[0,0,1]));
- return stlAscii('radilux_shadow_box',groups)}
-const dl=(n,t,m)=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([t],{type:m}));a.download=n;a.click()};
-$('bs').onclick=()=>dl('shadow_box.svg',svg(),'image/svg+xml');
-$('bd').onclick=()=>dl('shadow_box.dxf',dxf(),'application/dxf');
-$('bstl').onclick=()=>{const btn=$('bstl');btn.disabled=true;btn.textContent='Building...';setTimeout(()=>{try{dl('shadow_box.stl',stlExport(),'model/stl')}finally{btn.disabled=false;btn.textContent='Download STL'}},30)};
-// events
-const sched=()=>{clearTimeout(tm);tm=setTimeout(go,120)};
-document.querySelectorAll('input[type=number],#inv').forEach(e=>e.oninput=e.onchange=()=>{if(e.id=='inv')ingest();sched()});
-$('f').onchange=e=>{const f=e.target.files[0];if(!f)return;const im=new Image();im.onload=()=>{img=im;ingest();go()};im.src=URL.createObjectURL(f)};
-$('t0').onclick=()=>{tab=0;$('t0').className='';$('t1').className='o';draw()};$('t1').onclick=()=>{tab=1;$('t1').className='';$('t0').className='o';draw()};
-cv.onpointerdown=e=>{dr=[e.clientX,e.clientY];cv.setPointerCapture(e.pointerId)};cv.onpointerup=()=>dr=null;
-cv.onpointermove=e=>{if(!dr||tab)return;cam.y+=(e.clientX-dr[0])*.01;cam.p=Math.max(-1.5,Math.min(1.5,cam.p+(e.clientY-dr[1])*.01));dr=[e.clientX,e.clientY];draw()};
-cv.onwheel=e=>{e.preventDefault();cam.z=Math.max(.2,cam.z*(e.deltaY>0?1.1:.9));draw()};
-addEventListener('resize',draw);
-// default heart shape
-{const c=document.createElement('canvas');c.width=c.height=1024;const x=c.getContext('2d');x.fillStyle='#000';x.beginPath();x.moveTo(512,940);x.bezierCurveTo(40,560,130,120,512,380);x.bezierCurveTo(894,120,984,560,512,940);x.fill();img=c;ingest();go()}
-// --- activation gate: security key + phone, checked against the Netlify function ---
-(function(){
- const LK='sa_auth',DAYS=30;
- $('side').style.display='none';$('main').style.display='none';
- function unlock(){$('gate').remove();$('side').style.display='';$('main').style.display='';draw()}
- $('gskip').onclick=()=>{unlock()};
- try{const saved=JSON.parse(localStorage.getItem(LK)||'null');if(saved&&saved.exp>Date.now()){unlock();return}}catch(e){}
- $('gform').onsubmit=async e=>{
-  e.preventDefault();const btn=$('gbtn'),msg=$('gmsg');btn.disabled=true;msg.style.color='#9ab';msg.textContent='Checking...';
-  try{
-   const r=await fetch('/.netlify/functions/activate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({key:$('gkey').value,phone:$('gphone').value})});
-   const d=await r.json();
-   if(d.ok){localStorage.setItem(LK,JSON.stringify({exp:Date.now()+DAYS*864e5}));unlock()}
-   else{msg.style.color='#f66';msg.textContent=d.msg||'Activation failed';btn.disabled=false}
-  }catch(err){msg.style.color='#f66';msg.textContent='Network error - try again';btn.disabled=false}
+ const prepView=frame.contentDocument.querySelector('#viewToggle button.on');
+ if(prepView)out.__view=prepView.dataset.v||'';
+ const activeGenTab=frame.contentDocument.querySelector('#tabs button.o');
+ if(activeGenTab)out.__genTab=activeGenTab.id||'';
+ return out;
+}
+function frameState(){
+ return {
+  prep:frameValues(prepFrame),
+  gen:frameValues(genFrame),
+  fileName:RADILUX_FILE_NAME,
+  inputName:currentInputFile?currentInputFile.name:''
  };
-})();
+}
+function stateSignature(st){
+ const clean=o=>{if(!o)return null;const x={};Object.keys(o).sort().forEach(k=>x[k]=o[k]);return x};
+ return JSON.stringify({prep:clean(st.prep),gen:clean(st.gen),fileName:st.fileName,inputName:st.inputName});
+}
+function updateHistoryButtons(){
+ $('undoBtn').disabled=historyIndex<=0;
+ $('redoBtn').disabled=historyIndex<0||historyIndex>=history.length-1;
+}
+function resetHistory(){
+ clearTimeout(historyTimer);history=[];historyIndex=-1;lastHistorySig='';
+ if(prepFrame.contentDocument){const st=frameState();history=[st];historyIndex=0;lastHistorySig=stateSignature(st)}
+ updateHistoryButtons();
+}
+function scheduleHistoryCommit(){
+ if(suppressHistory)return;
+ clearTimeout(historyTimer);
+ historyTimer=setTimeout(commitHistory,350);
+}
+function commitHistory(){
+ if(suppressHistory)return;
+ const st=frameState();if(!st)return;
+ const sig=stateSignature(st);if(sig===lastHistorySig)return;
+ if(historyIndex<history.length-1)history=history.slice(0,historyIndex+1);
+ history.push(st);historyIndex++;lastHistorySig=sig;
+ if(history.length>60){history.shift();historyIndex--;};
+ updateHistoryButtons();
+}
+async function applyFrameState(st){
+ if(!st)return;
+ suppressHistory=true;
+ try{
+  RADILUX_FILE_NAME=cleanFileBase(st.fileName||'radilux_shadow_art');$('fileName').value=RADILUX_FILE_NAME;window.RADILUX_FILE_NAME=RADILUX_FILE_NAME;
+  const restore=(frame,obj)=>{
+   if(!frame||!obj||!frame.contentDocument)return;
+   Object.entries(obj).forEach(([id,v])=>{
+    if(id.startsWith('__'))return;
+    const el=frame.contentDocument.getElementById(id);if(!el)return;
+    if(el.type==='file')return; // browser security: file inputs can only be set to empty string
+    if(el.type==='checkbox')el.checked=!!v.checked;else el.value=v.value;
+   });
+  };
+  restore(prepFrame,st.prep);
+  restore(genFrame,st.gen);
+  if(st.prep&&st.prep.__view){
+   const b=prepFrame.contentDocument.querySelector(`#viewToggle button[data-v="${CSS.escape(st.prep.__view)}"]`);if(b)b.click();
+  }
+  if(st.gen&&st.gen.__genTab){const b=genFrame.contentDocument.getElementById(st.gen.__genTab);if(b)b.click()}
+  const pa=prepFrame.contentWindow.RadiluxPrep;
+  if(pa&&pa.hasImage&&pa.hasImage()&&pa.generate)pa.generate();
+  const ga=genFrame.contentWindow.RadiluxGenerator;
+  if(ga&&ga.generate&&ga.isDirty&&ga.isDirty())ga.generate();
+  if(ga&&ga.setImageDataURL&&pa&&pa.getResultDataURL){
+    const u=pa.getResultDataURL();if(u)await ga.setImageDataURL(u,'Prepared artwork');
+  }
+  dirty=false;setRadiluxDirty(false);
+ }finally{suppressHistory=false}
+}
+async function undo(){
+ if(historyIndex<=0)return;
+ historyIndex--;
+ if(history[historyIndex]&&history[historyIndex].gen&&!genLoaded)await ensureGenLoaded();
+ if(genLoaded)attachGeneratorHooks();
+ await applyFrameState(history[historyIndex]);
+ lastHistorySig=stateSignature(history[historyIndex]);updateHistoryButtons();
+}
+async function redo(){
+ if(historyIndex>=history.length-1)return;
+ historyIndex++;
+ if(history[historyIndex]&&history[historyIndex].gen&&!genLoaded)await ensureGenLoaded();
+ if(genLoaded)attachGeneratorHooks();
+ await applyFrameState(history[historyIndex]);
+ lastHistorySig=stateSignature(history[historyIndex]);updateHistoryButtons();
+}
+$('undoBtn').onclick=undo;$('redoBtn').onclick=redo;
+document.addEventListener('keydown',e=>{
+ const mod=e.ctrlKey||e.metaKey;if(!mod)return;
+ if(e.key.toLowerCase()==='z'){e.preventDefault();e.shiftKey?redo():undo()}
+ else if(e.key.toLowerCase()==='y'){e.preventDefault();redo()}
+});
+
+function bindFrameHistory(frame,kind){
+ if(!frame||!frame.contentDocument)return;
+ const doc=frame.contentDocument;
+ doc.querySelectorAll('input,select,textarea').forEach(el=>{
+  if(el.dataset.radiluxHostHook)return;
+  el.dataset.radiluxHostHook='1';
+  const onChange=()=>{
+   if(el.type==='file' && el.files&&el.files[0])currentInputFile=el.files[0];
+   scheduleHistoryCommit();
+  };
+  el.addEventListener('input',onChange);el.addEventListener('change',onChange);
+ });
+ if(kind==='prep'){
+  const vf=doc.querySelector('#viewToggle');
+  vf&&vf.querySelectorAll('button').forEach(b=>b.addEventListener('click',scheduleHistoryCommit));
+ }
+ if(historyIndex<0)resetHistory();
+ else updateHistoryButtons();
+}
+function attachPrepHooks(){
+ try{bindFrameHistory(prepFrame,'prep');bindFrameShortcuts(prepFrame)}catch(e){console.warn('prep hooks',e)}
+}
+function attachGeneratorHooks(){
+ try{bindFrameHistory(genFrame,'gen');bindFrameShortcuts(genFrame)}catch(e){console.warn('generator hooks',e)}
+}
+function bindFrameShortcuts(frame){
+ try{
+  const doc=frame.contentDocument;if(!doc||doc.documentElement.dataset.radiluxHistoryKeys)return;
+  doc.documentElement.dataset.radiluxHistoryKeys='1';
+  doc.addEventListener('keydown',e=>{
+   const mod=e.ctrlKey||e.metaKey;if(!mod)return;
+   if(e.key.toLowerCase()==='z'){e.preventDefault();e.stopPropagation();e.shiftKey?redo():undo()}
+   else if(e.key.toLowerCase()==='y'){e.preventDefault();e.stopPropagation();redo()}
+  },true);
+ }catch(e){}
+}
+prepFrame.addEventListener('load',()=>{attachPrepHooks();try{
+ const f=prepFrame.contentDocument&&prepFrame.contentDocument.getElementById('fileInput');
+ f&&f.addEventListener('change',()=>{if(f.files&&f.files[0]){currentInputFile=f.files[0];resetHistory()}});
+}catch(e){}});
+
+// ---------- ZIP project writer/reader (STORE method, self-contained; no external library) ----------
+const CRC_TABLE=(()=>{const t=new Uint32Array(256);for(let n=0;n<256;n++){let c=n;for(let k=0;k<8;k++)c=(c&1)?(0xedb88320^(c>>>1)):(c>>>1);t[n]=c>>>0}return t})();
+function crc32(bytes){let c=0xffffffff;for(let i=0;i<bytes.length;i++)c=CRC_TABLE[(c^bytes[i])&255]^(c>>>8);return (c^0xffffffff)>>>0}
+const u16=(v)=>{const a=new Uint8Array(2);a[0]=v&255;a[1]=(v>>>8)&255;return a};
+const u32=(v)=>{const a=new Uint8Array(4);a[0]=v&255;a[1]=(v>>>8)&255;a[2]=(v>>>16)&255;a[3]=(v>>>24)&255;return a};
+function dosNow(){const d=new Date();return {time:(d.getHours()<<11)|(d.getMinutes()<<5)|Math.floor(d.getSeconds()/2),date:((d.getFullYear()-1980)<<9)|((d.getMonth()+1)<<5)|d.getDate()}}
+function zipMake(entries){
+ const enc=new TextEncoder(),parts=[],central=[];let offset=0;const dt=dosNow();
+ for(const e of entries){
+  const name=enc.encode(e.name),data=e.data instanceof Uint8Array?e.data:new Uint8Array(e.data),crc=crc32(data);
+  const h=new Uint8Array(30+name.length);let p=0;h.set(u32(0x04034b50),p);p+=4;h.set(u16(20),p);p+=2;h.set(u16(0x0800),p);p+=2;h.set(u16(0),p);p+=2;h.set(u16(dt.time),p);p+=2;h.set(u16(dt.date),p);p+=2;h.set(u32(crc),p);p+=4;h.set(u32(data.length),p);p+=4;h.set(u32(data.length),p);p+=4;h.set(u16(name.length),p);p+=2;h.set(u16(0),p);p+=2;h.set(name,p);parts.push(h,data);
+  const c=new Uint8Array(46+name.length);p=0;c.set(u32(0x02014b50),p);p+=4;c.set(u16(20),p);p+=2;c.set(u16(20),p);p+=2;c.set(u16(0x0800),p);p+=2;c.set(u16(0),p);p+=2;c.set(u16(dt.time),p);p+=2;c.set(u16(dt.date),p);p+=2;c.set(u32(crc),p);p+=4;c.set(u32(data.length),p);p+=4;c.set(u32(data.length),p);p+=4;c.set(u16(name.length),p);p+=2;c.set(u16(0),p);p+=2;c.set(u16(0),p);p+=2;c.set(u16(0),p);p+=2;c.set(u16(0),p);p+=2;c.set(u32(0),p);p+=4;c.set(u32(offset),p);p+=4;c.set(name,p);central.push(c);offset+=h.length+data.length;
+ }
+ const cdSize=central.reduce((a,b)=>a+b.length,0),cdStart=offset;central.forEach(c=>parts.push(c));const end=new Uint8Array(22);let p=0;end.set(u32(0x06054b50),p);p+=4;end.set(u16(0),p);p+=2;end.set(u16(0),p);p+=2;end.set(u16(entries.length),p);p+=2;end.set(u16(entries.length),p+=0); /* keep p position explicit below */
+ // rewrite EOCD cleanly because the offset expression above is intentionally compact.
+ const eocd=new Uint8Array(22);p=0;eocd.set(u32(0x06054b50),p);p+=4;eocd.set(u16(0),p);p+=2;eocd.set(u16(0),p);p+=2;eocd.set(u16(entries.length),p);p+=2;eocd.set(u16(entries.length),p);p+=2;eocd.set(u32(cdSize),p);p+=4;eocd.set(u32(cdStart),p);p+=4;eocd.set(u16(0),p);parts.push(eocd);return new Blob(parts,{type:'application/zip'});
+}
+function safeZipPath(p){return typeof p==='string'&&p.startsWith('input/')&&!p.includes('..')&&!p.includes('\\')&&!p.endsWith('/')}
+function findEOCD(bytes){for(let i=bytes.length-22;i>=0;i--)if(bytes[i]===0x50&&bytes[i+1]===0x4b&&bytes[i+2]===0x05&&bytes[i+3]===0x06)return i;return -1}
+async function zipReadEntries(bytes){
+ const eocd=findEOCD(bytes);if(eocd<0)throw new Error('Not a valid Radilux project ZIP');
+ const dv=new DataView(bytes.buffer,bytes.byteOffset,bytes.byteLength);
+ const count=dv.getUint16(eocd+10,true);
+ const cdOff=dv.getUint32(eocd+16,true);
+ const out={};let p=cdOff;
+ const str=a=>new TextDecoder().decode(a);
+ for(let n=0;n<count;n++){
+   if(dv.getUint32(p,true)!==0x02014b50)throw new Error('Invalid project ZIP directory');
+   const flags=dv.getUint16(p+8,true),method=dv.getUint16(p+10,true),csize=dv.getUint32(p+20,true),usize=dv.getUint32(p+24,true),nl=dv.getUint16(p+28,true),xl=dv.getUint16(p+30,true),cl=dv.getUint16(p+32,true),localOff=dv.getUint32(p+42,true);
+   const name=str(bytes.subarray(p+46,p+46+nl));
+   if(flags&1)throw new Error('Encrypted project files are not supported');
+   const ldv=new DataView(bytes.buffer,bytes.byteOffset,bytes.byteLength);
+   if(ldv.getUint32(localOff,true)!==0x04034b50)throw new Error('Invalid project ZIP local header');
+   const lnl=ldv.getUint16(localOff+26,true),lxl=ldv.getUint16(localOff+28,true),dataStart=localOff+30+lnl+lxl;
+   const compressed=bytes.subarray(dataStart,dataStart+csize);
+   let data;
+   if(method===0){data=new Uint8Array(compressed)}
+   else if(method===8){
+     if(typeof DecompressionStream!=='function')throw new Error('This browser cannot decompress standard ZIP files. Use a Radilux project ZIP created by the app.');
+     const ds=new DecompressionStream('deflate-raw');
+     const stream=new Blob([compressed]).stream().pipeThrough(ds);
+     data=new Uint8Array(await new Response(stream).arrayBuffer());
+     if(usize && data.length!==usize)throw new Error('Project ZIP entry size mismatch: '+name);
+   } else throw new Error('Unsupported ZIP compression method '+method+' in entry '+name);
+   out[name]=data;
+   p+=46+nl+xl+cl;
+ }
+ return out;
+}
+function dataURLBytes(url){const m=String(url||'').match(/^data:.*?;base64,(.*)$/);if(!m)return new Uint8Array();const s=atob(m[1]),a=new Uint8Array(s.length);for(let i=0;i<s.length;i++)a[i]=s.charCodeAt(i);return a}
+function blobBytes(blob){return blob.arrayBuffer().then(b=>new Uint8Array(b))}
+function fileType(name){const e=(name.split('.').pop()||'').toLowerCase();return e==='png'?'image/png':e==='jpg'||e==='jpeg'?'image/jpeg':e==='webp'?'image/webp':'application/octet-stream'}
+
+// ---------- Project save/load ----------
+async function exportProject(){
+ const gen=genFrame.contentWindow&&genFrame.contentWindow.RadiluxGenerator;
+ const prepApi=prepFrame.contentWindow&&prepFrame.contentWindow.RadiluxPrep;
+ if(!currentInputFile){
+  try{currentInputFile=prepFrame.contentDocument?.getElementById('fileInput')?.files?.[0]||genFrame.contentDocument?.getElementById('f')?.files?.[0]||null}catch(e){}
+ }
+ if(!currentInputFile){alert('Upload an image first.');return}
+ $('exportProjectBtn').disabled=true;$('loadProjectBtn').disabled=true;
+ showRadiluxLoading('Exporting Radilux Project','Preparing all production files…');
+ try{
+  if(!prepApi||!prepApi.hasResult||!prepApi.hasResult()){alert('Image Prep has no generated result.');return}
+  const prepPng=dataURLBytes(prepApi.getResultDataURL());
+  if(!gen||!gen.setImageDataURL)await ensureGenLoaded();
+  attachGeneratorHooks();
+  const g=genFrame.contentWindow.RadiluxGenerator;
+  if(g.isDirty&&g.isDirty())g.generate();
+  if(!g.hasImage || true){
+   const u=prepApi.getResultDataURL();if(u)await g.setImageDataURL(u,'Prepared artwork');
+  }
+  const outputs=await g.buildProjectOutputs((m,f)=>{$('loadMsg').textContent=m;});
+  const base=cleanFileBase($('fileName').value||'radilux_shadow_art');
+  const inputPath='input/'+currentInputFile.name.replace(/[^A-Za-z0-9._-]+/g,'_');
+  const project={
+    schema:1,app:'Radilux Shadow Art Generator',version:'commercial-project-v1',savedAt:new Date().toISOString(),
+    fileName:base,input:{name:currentInputFile.name,path:inputPath,type:currentInputFile.type||fileType(currentInputFile.name)},
+    prep:frameValues(prepFrame),generator:frameValues(genFrame),
+    outputs:{svg:'exports/'+base+'.svg',png:'exports/'+base+'.png',dxf:'exports/'+base+'.dxf',stl:'exports/'+base+'.stl',glb:'exports/'+base+'.glb',py:'exports/'+base+'.py'}
+  };
+  const entries=[
+   {name:'project.json',data:new TextEncoder().encode(JSON.stringify(project,null,2))},
+   {name:inputPath,data:new Uint8Array(await currentInputFile.arrayBuffer())},
+   {name:'exports/'+base+'.png',data:prepPng},
+   {name:'exports/'+base+'.svg',data:new TextEncoder().encode(outputs.svg)},
+   {name:'exports/'+base+'.dxf',data:new TextEncoder().encode(outputs.dxf)},
+   {name:'exports/'+base+'.stl',data:new Uint8Array(outputs.stl)},
+   {name:'exports/'+base+'.glb',data:new Uint8Array(outputs.glb)},
+   {name:'exports/'+base+'.py',data:new TextEncoder().encode(outputs.py)}
+  ];
+  const zip=zipMake(entries);
+  const a=document.createElement('a');a.href=URL.createObjectURL(zip);a.download=base+'.radilux.zip';document.body.appendChild(a);a.click();document.body.removeChild(a);setTimeout(()=>URL.revokeObjectURL(a.href),5000);
+  setRadiluxDirty(false);hideRadiluxLoading();showToastOuter('Project exported successfully');
+ }catch(e){console.error(e);hideRadiluxLoading();alert('Project export failed: '+e.message)}
+ finally{$('exportProjectBtn').disabled=false;$('loadProjectBtn').disabled=false}
+}
+async function loadProject(file){
+ $('exportProjectBtn').disabled=true;$('loadProjectBtn').disabled=true;showRadiluxLoading('Loading Radilux Project','Reading project configuration…');
+ try{
+  const entries=await zipReadEntries(new Uint8Array(await file.arrayBuffer()));
+  if(!entries['project.json'])throw new Error('project.json not found in the selected project file');
+  const project=JSON.parse(new TextDecoder().decode(entries['project.json']));
+  if(!project.input||!safeZipPath(project.input.path))throw new Error('Project input path is invalid. Only files inside the input/ folder are allowed.');
+  if(!entries[project.input.path])throw new Error('The configured input image is missing from the project input/ folder.');
+  const inputBytes=entries[project.input.path];
+  const imageName=project.input.name||project.input.path.split('/').pop();
+  currentInputFile=new File([inputBytes],imageName,{type:project.input.type||fileType(imageName)});
+  await switchTool('prep');
+  const pf=prepFrame.contentWindow;
+  if(typeof pf.handleFiles!=='function')throw new Error('Image Prep is not ready');
+  suppressHistory=true;
+  pf.handleFiles([currentInputFile]);
+  showRadiluxLoading('Loading Radilux Project','Restoring image preparation settings…');
+  const wait=async(fn,ms=12000)=>{const t=Date.now();while(Date.now()-t<ms){if(fn())return;await new Promise(r=>setTimeout(r,80))}throw new Error('Timed out while loading project')};
+  await wait(()=>pf.RadiluxPrep&&pf.RadiluxPrep.hasImage&&pf.RadiluxPrep.hasImage()&&pf.RadiluxPrep.hasResult&&pf.RadiluxPrep.hasResult());
+  await ensureGenLoaded();
+  attachGeneratorHooks();
+  /* gen:project.generator (not applyFrameState's own ga.generate() pass, which would run
+     against whatever image the generator currently happens to have) restores every saved
+     field - including which generator sub-tab (3D view / Shadow test / Cut layout) was
+     active - before the real image is attached below. */
+  await applyFrameState({prep:project.prep,gen:project.generator,fileName:project.fileName||'radilux_shadow_art'});
+  /* applyFrameState already restores the generator's fields, regenerates the prepped
+     image, and awaits sending that fresh image into the generator - so there is nothing
+     left to do here. A second, un-awaited setImageDataURL()+generate() call used to run
+     right here against whichever *old* image the generator still had while the new one
+     was still loading in the background, which is what produced incorrect/erroring
+     results after loading a project. */
+  dirty=false;setRadiluxDirty(false);
+  suppressHistory=false;resetHistory();
+  hideRadiluxLoading();showToastOuter('Project loaded successfully');
+ }catch(e){console.error(e);hideRadiluxLoading();alert('Project load failed: '+e.message);suppressHistory=false}
+ finally{$('exportProjectBtn').disabled=false;$('loadProjectBtn').disabled=false}
+}
+function showToastOuter(msg){let t=$('outerToast');if(!t){t=document.createElement('div');t.id='outerToast';Object.assign(t.style,{position:'fixed',right:'18px',bottom:'18px',zIndex:2000,padding:'10px 14px',borderRadius:'9px',background:'#142333',border:'1px solid #35516a',color:'#d9e7f4',fontSize:'11px',fontWeight:'800',boxShadow:'0 10px 30px rgba(0,0,0,.35)',transition:'opacity .25s'});document.body.appendChild(t)}t.textContent=msg;t.style.opacity='1';clearTimeout(t._tid);t._tid=setTimeout(()=>t.style.opacity='0',2600)}
+$('exportProjectBtn').onclick=exportProject;
+$('loadProjectBtn').onclick=()=>$('projectFileInput').click();
+$('projectFileInput').addEventListener('change',()=>{const f=$('projectFileInput').files[0];if(f)loadProject(f);$('projectFileInput').value=''});
+
+// Initialize history once Image Prep finishes its first load, and keep the original prep auto-generation behavior intact.
+setTimeout(()=>{try{attachPrepHooks()}catch(e){}},200);
 </script></body></html>
