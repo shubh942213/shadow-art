@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Radilux License Manager</title>
+<style>
+:root{--bg:#080b0f;--panel:#11161c;--panel2:#0c1116;--line:#27313b;--text:#eef2f6;--muted:#91a0af;--accent:#ffc34d;--green:#59d38b;--red:#ff746f;--blue:#77b7ff}
+*{box-sizing:border-box} body{margin:0;background:radial-gradient(circle at 50% -15%,#202933 0,#080b0f 58%);color:var(--text);font-family:Inter,Segoe UI,Arial,sans-serif;min-height:100vh}
+.wrap{max-width:1320px;margin:auto;padding:24px 18px 46px}.top{display:flex;justify-content:space-between;gap:18px;align-items:flex-start;margin-bottom:18px}.brand{display:flex;gap:12px;align-items:center}.logo{width:44px;height:44px;border-radius:11px;background:var(--accent);color:#16110a;display:grid;place-items:center;font-weight:950}.brand h1{margin:0;font-size:22px}.brand p{margin:5px 0 0;color:var(--muted);font-size:12px}.version{font-size:11px;color:#9ba6b1;border:1px solid var(--line);background:#12181f;padding:7px 10px;border-radius:999px}
+.grid{display:grid;grid-template-columns:390px 1fr;gap:16px}.card{background:rgba(17,22,28,.97);border:1px solid var(--line);border-radius:14px;padding:16px;box-shadow:0 16px 50px rgba(0,0,0,.2)}.card h2{font-size:14px;margin:0 0 12px}.section{margin-top:16px;padding-top:16px;border-top:1px solid #202831}
+label{display:block;font-size:11px;color:#b8c3cd;margin:12px 0 6px;text-transform:uppercase;letter-spacing:.06em;font-weight:800}input,select,textarea{width:100%;background:#0a0f14;border:1px solid #303a45;border-radius:8px;color:#f1f4f7;padding:10px 11px;outline:none;font:inherit}input:focus,select:focus,textarea:focus{border-color:#6e7c8a}.row{display:grid;grid-template-columns:1fr 1fr;gap:9px}textarea{min-height:100px;resize:vertical;font-family:Consolas,monospace;font-size:12px}.actions{display:flex;gap:8px;margin-top:14px}.actions button{flex:1}button{cursor:pointer;border-radius:8px;border:1px solid #39434e;background:#222a33;color:#eef2f6;padding:10px 12px;font-weight:800;font-size:11px}button.primary{background:var(--accent);border-color:#ffd87f;color:#18120a}button.danger{background:#2d1717;border-color:#62302e;color:#ffaaa5}button.blue{background:#132536;border-color:#31557b;color:#a9d2ff}button.green{background:#123023;border-color:#28563d;color:#8ce7af}button:disabled{opacity:.55;cursor:not-allowed}
+.help{font-size:11px;line-height:1.55;color:var(--muted);margin-top:9px}.security{padding:10px 11px;background:#17150f;border-left:3px solid var(--accent);font-size:11px;line-height:1.55;color:#d0c5a5;border-radius:3px;margin-top:12px}.statusbar{display:flex;justify-content:space-between;gap:10px;align-items:center;margin-bottom:11px}.statusbar .msg{font-size:11px;color:var(--muted);min-height:16px}.statusbar .msg.ok{color:var(--green)}.statusbar .msg.err{color:var(--red)}.count{font-size:11px;color:var(--muted)}
+.tableWrap{overflow:auto;border:1px solid var(--line);border-radius:9px;max-height:660px}table{border-collapse:collapse;width:100%;min-width:980px;font-size:11px}th,td{padding:9px 10px;border-bottom:1px solid #202830;text-align:left;white-space:nowrap}th{position:sticky;top:0;background:#171c22;color:#aeb8c2;font-size:10px;text-transform:uppercase;letter-spacing:.04em}tr:hover td{background:#12181e}.key{font-family:Consolas,monospace;font-weight:800}.status{font-weight:800}.status.available{color:#9fb3c5}.status.active{color:var(--green)}.status.locked,.status.revoked,.status.expired{color:var(--red)}.mini{padding:6px 8px;font-size:10px;margin-right:4px}.toolbar{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}.toolbar>*{width:auto}.toolbar input{min-width:200px;flex:1}.empty{padding:46px;text-align:center;color:var(--muted)}.footerNote{font-size:10px;color:#687584;margin-top:12px;line-height:1.5}
+@media(max-width:900px){.grid{grid-template-columns:1fr}.top{flex-direction:column}.version{display:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <div class="brand"><div class="logo">R</div><div><h1>Radilux License Manager</h1><p>Create, register, bind, reset, revoke and manage Radilux licenses.</p></div></div>
+    <div class="version">ADMIN TOOL v1.0</div>
+  </div>
+
+  <div class="grid">
+    <section class="card">
+      <h2>Administrator Connection</h2>
+      <label>License API URL</label>
+      <input id="apiUrl" value="/.netlify/functions/license" placeholder="https://your-site.netlify.app/.netlify/functions/license">
+      <label>Admin Secret</label>
+      <input id="adminSecret" type="password" autocomplete="off" placeholder="RADILUX_ADMIN_SECRET">
+      <div class="actions"><button class="blue" id="connect">CONNECT / REFRESH</button></div>
+      <div id="connMsg" class="help"></div>
+
+      <div class="section">
+        <h2>Generate New Licenses</h2>
+        <label>Customer / User ID</label>
+        <input id="userId" placeholder="e.g. CUSTOMER021" maxlength="24">
+        <div class="row">
+          <div><label>Quantity</label><input id="quantity" type="number" min="1" max="500" value="1"></div>
+          <div><label>Validity</label><select id="validity"><option value="365" selected>1 Year</option><option value="30">30 Days</option><option value="90">90 Days</option><option value="180">180 Days</option><option value="730">2 Years</option><option value="0">Lifetime</option></select></div>
+        </div>
+        <label>Note</label><input id="note" placeholder="Optional order/customer note" maxlength="120">
+        <div class="actions"><button class="primary" id="generate">GENERATE & REGISTER</button></div>
+      </div>
+
+      <div class="section">
+        <h2>Register Existing Key</h2>
+        <label>License Key</label><input id="existingKey" placeholder="RDLX-SHUBHAM94-TEST-001">
+        <label>Customer / User ID</label><input id="existingUser" value="SHUBHAM94" maxlength="24">
+        <div class="row"><div><label>Validity</label><select id="existingValidity"><option value="0" selected>Lifetime</option><option value="365">1 Year</option><option value="180">180 Days</option><option value="90">90 Days</option><option value="30">30 Days</option></select></div><div><label>Note</label><input id="existingNote" placeholder="Optional"></div></div>
+        <div class="actions"><button class="green" id="registerExisting">REGISTER KEY</button></div>
+      </div>
+
+      <div class="section">
+        <h2>Existing Netlify Keys Migration</h2>
+        <div class="help">Use this once to import the keys currently inside <b>RADILUX_LICENSE_KEYS</b> into the database. After checking the list, you can remove that environment variable.</div>
+        <div class="actions"><button class="secondary" id="migrate">IMPORT EXISTING NETLIFY KEYS</button></div>
+      </div>
+
+      <div class="security">Keep the Admin Secret private. This page does not save it to localStorage. It is kept only in memory while this page is open.</div>
+    </section>
+
+    <section class="card">
+      <div class="statusbar"><div><h2 style="margin:0">License Database</h2><div id="statusMsg" class="msg"></div></div><div id="count" class="count">0 licenses</div></div>
+      <div class="toolbar"><input id="search" placeholder="Search user ID, license, status or note"><button id="refresh" class="blue">REFRESH</button><button id="copyAvailable">COPY AVAILABLE KEYS</button><button id="csv">DOWNLOAD CSV</button></div>
+      <div class="tableWrap" id="tableWrap"><div class="empty">Connect to the license server to load licenses.</div></div>
+      <div class="footerNote">Phone numbers are displayed only as their last four digits. The full phone number is never returned by the admin API.</div>
+    </section>
+  </div>
+</div>
+<script>
+'use strict';
+const $=id=>document.getElementById(id); let licenses=[];
+function api(){return String($('apiUrl').value||'').trim().replace(/\/$/,'')}
+function secret(){return String($('adminSecret').value||'')}
+function esc(v){return String(v??'').replace(/[&<>'"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[m]))}
+function msg(text,kind=''){const e=$('statusMsg');e.textContent=text||'';e.className='msg '+kind}
+async function call(action,extra={}){
+  const endpoint=api(); if(!endpoint)throw new Error('Enter the License API URL.');
+  if(!secret())throw new Error('Enter the Admin Secret.');
+  const r=await fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json','Cache-Control':'no-store','x-radilux-admin-secret':secret()},body:JSON.stringify({action,...extra}),cache:'no-store'});
+  let d=null; try{d=await r.json()}catch(e){throw new Error('The license server returned an invalid response.')}
+  if(!r.ok)throw new Error(d?.message||'License manager request failed.'); return d;
+}
+function fmtDate(v){if(!v)return 'Lifetime'; const d=new Date(v); return Number.isNaN(d.getTime())?'—':d.toISOString().slice(0,10)}
+function render(){
+  const q=String($('search').value||'').trim().toLowerCase();
+  const arr=licenses.filter(x=>[x.licenseKey,x.userId,x.status,x.note].some(v=>String(v||'').toLowerCase().includes(q)));
+  $('count').textContent=`${licenses.length} license${licenses.length===1?'':'s'}`;
+  if(!arr.length){$('tableWrap').innerHTML='<div class="empty">No matching licenses.</div>';return}
+  $('tableWrap').innerHTML='<table><thead><tr><th>Customer</th><th>License Key</th><th>Status</th><th>Phone</th><th>Created</th><th>Activated</th><th>Expires</th><th>Attempts</th><th>Note</th><th>Actions</th></tr></thead><tbody>'+arr.map(x=>`
+  <tr><td>${esc(x.userId||'—')}</td><td class="key">${esc(x.licenseKey)}</td><td><span class="status ${esc(x.status)}">${esc(x.status.toUpperCase())}</span></td><td>${x.phoneLast4?'••••'+esc(x.phoneLast4):'Not bound'}</td><td>${fmtDate(x.createdAt)}</td><td>${fmtDate(x.activatedAt)}</td><td>${fmtDate(x.expiresAt)}</td><td>${esc(x.failedAttempts)}</td><td>${esc(x.note||'')}</td><td>
+    <button class="mini" onclick="copyKey(${JSON.stringify(x.licenseKey)})">COPY</button>
+    <button class="mini" onclick="resetKey(${JSON.stringify(x.licenseKey)})">RESET</button>
+    ${x.status==='revoked'?`<button class="mini" onclick="restoreKey(${JSON.stringify(x.licenseKey)})">RESTORE</button>`:`<button class="mini danger" onclick="revokeKey(${JSON.stringify(x.licenseKey)})">REVOKE</button>`}
+    <button class="mini danger" onclick="deleteKey(${JSON.stringify(x.licenseKey)})">DELETE</button>
+  </td></tr>`).join('')+'</tbody></table>';
+}
+async function refresh(){try{msg('Loading…');const d=await call('adminList');licenses=d.licenses||[];render();msg('Database updated.','ok')}catch(e){msg(e.message,'err')}}
+window.copyKey=async key=>{await navigator.clipboard.writeText(key);msg('License key copied.','ok')}
+window.resetKey=async key=>{if(!confirm(`Reset phone binding for ${key}?`))return;try{await call('adminReset',{licenseKey:key});await refresh()}catch(e){msg(e.message,'err')}}
+window.revokeKey=async key=>{if(!confirm(`Revoke ${key}? The customer will be blocked.`))return;try{await call('adminRevoke',{licenseKey:key});await refresh()}catch(e){msg(e.message,'err')}}
+window.restoreKey=async key=>{try{await call('adminRestore',{licenseKey:key});await refresh()}catch(e){msg(e.message,'err')}}
+window.deleteKey=async key=>{if(!confirm(`PERMANENTLY DELETE ${key}? This cannot be undone.`))return;try{await call('adminDelete',{licenseKey:key});await refresh()}catch(e){msg(e.message,'err')}}
+$('connect').onclick=refresh;$('refresh').onclick=refresh;$('search').oninput=render;
+$('generate').onclick=async()=>{try{const qty=Math.max(1,Math.min(500,parseInt($('quantity').value||'1',10)));const d=await call('adminGenerate',{userId:$('userId').value,quantity:qty,validityDays:Number($('validity').value),note:$('note').value});await refresh();const keys=(d.licenses||[]).map(x=>x.licenseKey).join('\n');if(keys){await navigator.clipboard.writeText(keys);msg(`${d.licenses.length} license(s) created and copied.`,'ok')}}catch(e){msg(e.message,'err')}};
+$('registerExisting').onclick=async()=>{try{await call('adminRegister',{licenseKey:$('existingKey').value,userId:$('existingUser').value,validityDays:Number($('existingValidity').value),note:$('existingNote').value});await refresh();msg('Existing license registered.','ok')}catch(e){msg(e.message,'err')}};
+$('migrate').onclick=async()=>{if(!confirm('Import all keys currently stored in RADILUX_LICENSE_KEYS?'))return;try{const d=await call('adminImportConfigured');await refresh();msg(`Imported ${d.imported?.length||0}; already present ${d.skipped?.length||0}.`,'ok')}catch(e){msg(e.message,'err')}};
+$('copyAvailable').onclick=async()=>{const keys=licenses.filter(x=>x.status==='available').map(x=>x.licenseKey).join('\n');if(!keys){msg('No available keys.','err');return}await navigator.clipboard.writeText(keys);msg('Available keys copied.','ok')};
+$('csv').onclick=()=>{if(!licenses.length){msg('No licenses to export.','err');return}const h=['Customer/User ID','License Key','Status','Phone Last 4','Created','Activated','Expires','Attempts','Note'];const rows=licenses.map(x=>[x.userId,x.licenseKey,x.status,x.phoneLast4,x.createdAt,x.activatedAt,x.expiresAt??'',x.failedAttempts,x.note]);const csv=[h,...rows].map(r=>r.map(v=>`"${String(v??'').replace(/"/g,'""')}"`).join(',')).join('\n');const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download='radilux-license-register.csv';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),500)};
+</script>
+</body>
+</html>
