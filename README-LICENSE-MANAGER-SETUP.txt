@@ -61,8 +61,8 @@ FIRST-TIME MIGRATION OF YOUR EXISTING KEYS
 8. You can then delete RADILUX_LICENSE_KEYS from Netlify.
 9. Deploy again.
 
-The old test key RDLX-SHUBHAM94-TEST-001 can also be registered manually from
-REGISTER EXISTING KEY if needed.
+An existing license key can also be registered manually from
+REGISTER EXISTING KEY if needed. Do not place real license values in this file.
 
 GENERATING NEW LICENSES
 -----------------------
