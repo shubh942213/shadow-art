@@ -344,49 +344,68 @@ async function adminGenerate(body, request) {
   if (!userId) return json({ ok: false, code: 'BAD_USER_ID', message: 'Enter a customer/user ID.' }, 400);
   if (expiry === undefined) return json({ ok: false, code: 'BAD_VALIDITY', message: 'Validity must be 0 (lifetime) or between 1 and 3650 days.' }, 400);
 
-  const generated = [];
+  // Generate a collision-free batch locally, then write all records concurrently.
+  // This avoids the previous quantity x (HMAC + Blob write) serial bottleneck.
+  const batch = [];
+  const used = new Set();
+  const now = new Date().toISOString();
   for (let i = 0; i < quantity; i++) {
-    let saved = false;
-    for (let retry = 0; retry < 10 && !saved; retry++) {
-      const license = makeLicenseKey(userId);
-      const licenseHash = await hmacHex(`license:${license}`);
-      const blobKey = licenseBlobKey(licenseHash);
-      const now = new Date().toISOString();
-      const record = {
-        version: 2,
-        licenseHash,
-        licenseKey: license,
-        userId,
-        status: 'available',
-        failedAttempts: 0,
-        phoneHash: null,
-        phoneLast4: '',
-        createdAt: now,
-        activatedAt: null,
-        lastSuccessAt: null,
-        lastFailureAt: null,
-        lockedAt: null,
-        revokedAt: null,
-        expiresAt: expiry,
-        validityDays,
-        note,
-        source: 'admin-generated',
-      };
-      const wr = await store.setJSON(blobKey, record, { onlyIfNew: true });
-      if (wr.modified) {
-        generated.push({
-          licenseKey: license,
-          userId,
-          status: 'available',
-          createdAt: now,
-          expiresAt: expiry,
-          validityDays,
-          note,
-        });
-        saved = true;
-      }
+    let license;
+    do { license = makeLicenseKey(userId); } while (used.has(license));
+    used.add(license);
+    batch.push({ license, now });
+  }
+
+  const prepared = await Promise.all(batch.map(async ({ license, now }) => {
+    const licenseHash = await hmacHex(`license:${license}`);
+    const blobKey = licenseBlobKey(licenseHash);
+    const record = {
+      version: 2,
+      licenseHash,
+      licenseKey: license,
+      userId,
+      status: 'available',
+      failedAttempts: 0,
+      phoneHash: null,
+      phoneLast4: '',
+      createdAt: now,
+      activatedAt: null,
+      lastSuccessAt: null,
+      lastFailureAt: null,
+      lockedAt: null,
+      revokedAt: null,
+      expiresAt: expiry,
+      validityDays,
+      note,
+      source: 'admin-generated',
+    };
+    return { license, licenseHash, blobKey, record, now };
+  }));
+
+  const writes = [];
+  const WRITE_BATCH_SIZE = 40;
+  for (let i = 0; i < prepared.length; i += WRITE_BATCH_SIZE) {
+    const batch = prepared.slice(i, i + WRITE_BATCH_SIZE);
+    const result = await Promise.all(batch.map(x =>
+      store.setJSON(x.blobKey, x.record, { onlyIfNew: true }).then(wr => ({ ...x, wr }))
+    ));
+    writes.push(...result);
+  }
+
+  const generated = [];
+  for (const x of writes) {
+    if (!x.wr?.modified) {
+      return json({ ok: false, code: 'KEY_GENERATION_FAILED', message: 'Could not create a unique license key. Please try again.' }, 500);
     }
-    if (!saved) return json({ ok: false, code: 'KEY_GENERATION_FAILED', message: 'Could not create a unique license key. Please try again.' }, 500);
+    generated.push({
+      licenseKey: x.license,
+      userId,
+      status: 'available',
+      createdAt: x.now,
+      expiresAt: expiry,
+      validityDays,
+      note,
+    });
   }
 
   return json({ ok: true, licenses: generated });
@@ -484,27 +503,36 @@ async function adminList(request) {
   const denied = await requireAdmin(request);
   if (denied) return denied;
   const { blobs = [] } = await store.list({ prefix: 'license/' });
+
+  // Read records in parallel batches. The old implementation fetched every blob
+  // serially, which became noticeably slow as the license database grew.
   const records = [];
-  for (const blob of blobs) {
-    const current = await getLicenseRecord(blob.key);
-    if (!current?.data) continue;
-    const r = current.data;
-    let status = r.status || 'available';
-    if (status === 'active' && isExpired(r)) status = 'expired';
-    records.push({
-      licenseKey: r.licenseKey || '',
-      userId: r.userId || '',
-      status,
-      failedAttempts: Number(r.failedAttempts || 0),
-      phoneLast4: r.phoneLast4 || '',
-      createdAt: r.createdAt || '',
-      activatedAt: r.activatedAt || null,
-      expiresAt: r.expiresAt ?? null,
-      validityDays: Number(r.validityDays || 0),
-      note: r.note || '',
-      source: r.source || '',
-    });
+  const BATCH_SIZE = 40;
+  for (let i = 0; i < blobs.length; i += BATCH_SIZE) {
+    const batch = blobs.slice(i, i + BATCH_SIZE);
+    const results = await Promise.all(batch.map(async blob => {
+      const current = await getLicenseRecord(blob.key);
+      if (!current?.data) return null;
+      const r = current.data;
+      let status = r.status || 'available';
+      if (status === 'active' && isExpired(r)) status = 'expired';
+      return {
+        licenseKey: r.licenseKey || '',
+        userId: r.userId || '',
+        status,
+        failedAttempts: Number(r.failedAttempts || 0),
+        phoneLast4: r.phoneLast4 || '',
+        createdAt: r.createdAt || '',
+        activatedAt: r.activatedAt || null,
+        expiresAt: r.expiresAt ?? null,
+        validityDays: Number(r.validityDays || 0),
+        note: r.note || '',
+        source: r.source || '',
+      };
+    }));
+    for (const r of results) if (r) records.push(r);
   }
+
   records.sort((a, b) => String(b.createdAt).localeCompare(String(a.createdAt)));
   return json({ ok: true, licenses: records, total: records.length });
 }
@@ -574,8 +602,8 @@ async function adminDelete(body, request) {
   if (!license) return json({ ok: false, code: 'BAD_LICENSE', message: 'Enter a license key.' }, 400);
   const licenseHash = await hmacHex(`license:${license}`);
   const blobKey = licenseBlobKey(licenseHash);
-  const current = await getLicenseRecord(blobKey);
-  if (!current?.data) return json({ ok: false, code: 'INVALID_LICENSE', message: 'License record not found.' }, 404);
+  // The admin UI already has the canonical license key. A pre-delete read was
+  // unnecessary and added a full network round-trip to every delete operation.
   await store.delete(blobKey);
   return json({ ok: true, message: 'License deleted permanently.' });
 }

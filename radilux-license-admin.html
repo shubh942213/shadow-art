@@ -19,7 +19,7 @@ label{display:block;font-size:11px;color:#b8c3cd;margin:12px 0 6px;text-transfor
 <div class="wrap">
   <div class="top">
     <div class="brand"><div class="logo">R</div><div><h1>Radilux License Manager</h1><p>Create, register, bind, reset, revoke and manage Radilux licenses.</p></div></div>
-    <div class="version">ADMIN TOOL v1.0</div>
+    <div class="version">ADMIN TOOL v1.1 · FAST</div>
   </div>
 
   <div class="grid">
@@ -97,16 +97,16 @@ function render(){
     <button class="mini danger" onclick="deleteKey(${JSON.stringify(x.licenseKey)})">DELETE</button>
   </td></tr>`).join('')+'</tbody></table>';
 }
-async function refresh(){try{msg('Loading…');const d=await call('adminList');licenses=d.licenses||[];render();msg('Database updated.','ok')}catch(e){msg(e.message,'err')}}
+async function refresh(){try{msg('Loading database…');const d=await call('adminList');licenses=d.licenses||[];render();msg(`Database ready · ${licenses.length} license(s)`,'ok')}catch(e){msg(e.message,'err')}}
 window.copyKey=async key=>{await navigator.clipboard.writeText(key);msg('License key copied.','ok')}
-window.resetKey=async key=>{if(!confirm(`Reset phone binding for ${key}?`))return;try{await call('adminReset',{licenseKey:key});await refresh()}catch(e){msg(e.message,'err')}}
-window.revokeKey=async key=>{if(!confirm(`Revoke ${key}? The customer will be blocked.`))return;try{await call('adminRevoke',{licenseKey:key});await refresh()}catch(e){msg(e.message,'err')}}
-window.restoreKey=async key=>{try{await call('adminRestore',{licenseKey:key});await refresh()}catch(e){msg(e.message,'err')}}
-window.deleteKey=async key=>{if(!confirm(`PERMANENTLY DELETE ${key}? This cannot be undone.`))return;try{await call('adminDelete',{licenseKey:key});await refresh()}catch(e){msg(e.message,'err')}}
+window.resetKey=async key=>{if(!confirm(`Reset phone binding for ${key}?`))return;try{await call('adminReset',{licenseKey:key});const x=licenses.find(v=>v.licenseKey===key);if(x){x.status=x.expiresAt&&new Date(x.expiresAt).getTime()<=Date.now()?'expired':'available';x.phoneLast4='';x.activatedAt=null;x.failedAttempts=0}render();msg('License reset.','ok')}catch(e){msg(e.message,'err')}}
+window.revokeKey=async key=>{if(!confirm(`Revoke ${key}? The customer will be blocked.`))return;try{await call('adminRevoke',{licenseKey:key});const x=licenses.find(v=>v.licenseKey===key);if(x)x.status='revoked';render();msg('License revoked.','ok')}catch(e){msg(e.message,'err')}}
+window.restoreKey=async key=>{try{await call('adminRestore',{licenseKey:key});const x=licenses.find(v=>v.licenseKey===key);if(x)x.status=x.phoneLast4?'active':'available';render();msg('License restored.','ok')}catch(e){msg(e.message,'err')}}
+window.deleteKey=async key=>{if(!confirm(`PERMANENTLY DELETE ${key}? This cannot be undone.`))return;try{await call('adminDelete',{licenseKey:key});licenses=licenses.filter(v=>v.licenseKey!==key);render();msg('License deleted.','ok')}catch(e){msg(e.message,'err')}}
 $('connect').onclick=refresh;$('refresh').onclick=refresh;$('search').oninput=render;
-$('generate').onclick=async()=>{try{const qty=Math.max(1,Math.min(500,parseInt($('quantity').value||'1',10)));const d=await call('adminGenerate',{userId:$('userId').value,quantity:qty,validityDays:Number($('validity').value),note:$('note').value});await refresh();const keys=(d.licenses||[]).map(x=>x.licenseKey).join('\n');if(keys){await navigator.clipboard.writeText(keys);msg(`${d.licenses.length} license(s) created and copied.`,'ok')}}catch(e){msg(e.message,'err')}};
-$('registerExisting').onclick=async()=>{try{await call('adminRegister',{licenseKey:$('existingKey').value,userId:$('existingUser').value,validityDays:Number($('existingValidity').value),note:$('existingNote').value});await refresh();msg('Existing license registered.','ok')}catch(e){msg(e.message,'err')}};
-$('migrate').onclick=async()=>{if(!confirm('Import all keys currently stored in RADILUX_LICENSE_KEYS?'))return;try{const d=await call('adminImportConfigured');await refresh();msg(`Imported ${d.imported?.length||0}; already present ${d.skipped?.length||0}.`,'ok')}catch(e){msg(e.message,'err')}};
+$('generate').onclick=async()=>{const btn=$('generate');if(btn.disabled)return;btn.disabled=true;try{const qty=Math.max(1,Math.min(500,parseInt($('quantity').value||'1',10)));msg(`Generating ${qty} license${qty===1?'':'s'}…`);const d=await call('adminGenerate',{userId:$('userId').value,quantity:qty,validityDays:Number($('validity').value),note:$('note').value});const fresh=d.licenses||[];licenses=fresh.concat(licenses);render();const keys=fresh.map(x=>x.licenseKey).join('\n');if(keys){try{await navigator.clipboard.writeText(keys)}catch(_){}}msg(`${fresh.length} license(s) created and copied.`,'ok')}catch(e){msg(e.message,'err')}finally{btn.disabled=false}};
+$('registerExisting').onclick=async()=>{const btn=$('registerExisting');if(btn.disabled)return;btn.disabled=true;try{const d=await call('adminRegister',{licenseKey:$('existingKey').value,userId:$('existingUser').value,validityDays:Number($('existingValidity').value),note:$('existingNote').value});if(d.license){licenses=[d.license,...licenses];render()}msg('Existing license registered.','ok')}catch(e){msg(e.message,'err')}finally{btn.disabled=false}};
+$('migrate').onclick=async()=>{const btn=$('migrate');if(!confirm('Import all keys currently stored in RADILUX_LICENSE_KEYS?'))return;btn.disabled=true;try{const d=await call('adminImportConfigured');await refresh();msg(`Imported ${d.imported?.length||0}; already present ${d.skipped?.length||0}.`,'ok')}catch(e){msg(e.message,'err')}finally{btn.disabled=false}};
 $('copyAvailable').onclick=async()=>{const keys=licenses.filter(x=>x.status==='available').map(x=>x.licenseKey).join('\n');if(!keys){msg('No available keys.','err');return}await navigator.clipboard.writeText(keys);msg('Available keys copied.','ok')};
 $('csv').onclick=()=>{if(!licenses.length){msg('No licenses to export.','err');return}const h=['Customer/User ID','License Key','Status','Phone Last 4','Created','Activated','Expires','Attempts','Note'];const rows=licenses.map(x=>[x.userId,x.licenseKey,x.status,x.phoneLast4,x.createdAt,x.activatedAt,x.expiresAt??'',x.failedAttempts,x.note]);const csv=[h,...rows].map(r=>r.map(v=>`"${String(v??'').replace(/"/g,'""')}"`).join(',')).join('\n');const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download='radilux-license-register.csv';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),500)};
 </script>
